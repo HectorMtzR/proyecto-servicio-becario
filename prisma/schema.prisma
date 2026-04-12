@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  JEFE_SERVICIO
+  ALUMNO
+}
+
+enum Status {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+  CANCELADA
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  name               String
+  passwordHash       String
+  role               Role
+  mustChangePassword Boolean  @default(true)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  studentProfile        StudentProfile?
+  studentAssignments    Assignment[]    @relation("StudentAssignments")
+  supervisorAssignments Assignment[]    @relation("SupervisorAssignments")
+  workSessions          WorkSession[]   @relation("StudentSessions")
+  validatedSessions     WorkSession[]   @relation("ValidatedSessions")
+}
+
+model Career {
+  id      String @id @default(cuid())
+  name    String @unique
+  faculty String
+
+  // Relations
+  studentProfiles StudentProfile[]
+}
+
+model Period {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(true)
+  isClosed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  assignments Assignment[]
+}
+
+model StudentProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  careerId           String
+  studentId          String   @unique
+  semester           Int
+  enrollmentYear     Int
+  scholarshipPercent Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  career Career @relation(fields: [careerId], references: [id])
+}
+
+model Assignment {
+  id                 String   @id @default(cuid())
+  studentId          String
+  supervisorId       String
+  periodId           String
+  department         String
+  targetHours        Int
+  accumulatedMinutes Int      @default(0)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  student      User          @relation("StudentAssignments", fields: [studentId], references: [id])
+  supervisor   User          @relation("SupervisorAssignments", fields: [supervisorId], references: [id])
+  period       Period        @relation(fields: [periodId], references: [id])
+  workSessions WorkSession[]
+
+  @@unique([studentId, periodId])
+}
+
+model WorkSession {
+  id               String    @id @default(cuid())
+  assignmentId     String
+  studentId        String
+  startTime        DateTime
+  endTime          DateTime?
+  totalMinutes     Int?
+  status           Status    @default(PENDIENTE)
+  isManual         Boolean   @default(false)
+  description      String?
+  rejectionComment String?
+  validatedBy      String?
+  validatedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+  student    User       @relation("StudentSessions", fields: [studentId], references: [id])
+  validator  User?      @relation("ValidatedSessions", fields: [validatedBy], references: [id])
+}
