@@ -1,8 +1,35 @@
-export default function AlumnoJornadasPage() {
+import {
+  getActiveWorkSession,
+  getCurrentAssignment,
+} from "@/actions/cronometro";
+import { getAlumnoStats, getRecentSessions } from "@/actions/jornadas";
+import Cronometro from "@/components/cronometro/Cronometro";
+import AssignmentCard from "@/components/cronometro/AssignmentCard";
+import ProgressWidget from "@/components/cronometro/ProgressWidget";
+import RecentActivity from "@/components/cronometro/RecentActivity";
+export const dynamic = "force-dynamic";
+
+export default async function AlumnoJornadasPage() {
+  const [activeSession, assignment, stats, sessions] = await Promise.all([
+    getActiveWorkSession(),
+    getCurrentAssignment(),
+    getAlumnoStats(),
+    getRecentSessions(),
+  ]);
+
   return (
-    <main className="p-8">
-      <h1 className="font-headline text-2xl font-bold text-on-surface">Mis Jornadas</h1>
-      <p className="text-secondary mt-2">Próximamente: dashboard del alumno.</p>
-    </main>
+    <div className="px-8 pb-12 pt-8">
+      <div className="mx-auto max-w-6xl space-y-8">
+        <div className="grid grid-cols-12 gap-8">
+          <Cronometro
+            initialActive={activeSession}
+            hasAssignment={assignment !== null}
+          />
+          <AssignmentCard assignment={assignment} />
+          <ProgressWidget stats={stats} />
+          <RecentActivity sessions={sessions} />
+        </div>
+      </div>
+    </div>
   );
 }

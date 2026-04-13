@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Role } from "@prisma/client";
 import { logoutAction } from "@/actions/auth";
+import { useUIStore } from "@/stores/ui-store";
 
 type NavItem = {
   href:  string;
@@ -37,6 +38,7 @@ const navByRole: Record<Role, NavItem[]> = {
 export default function Sidebar({ role }: { role: Role }) {
   const pathname = usePathname();
   const items = navByRole[role];
+  const openRegistroManual = useUIStore((s) => s.openRegistroManual);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -83,6 +85,7 @@ export default function Sidebar({ role }: { role: Role }) {
         {role === "ALUMNO" && (
           <button
             type="button"
+            onClick={openRegistroManual}
             className="mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary-container px-4 py-3 text-sm font-bold text-on-primary-container transition-all active:scale-95 active:opacity-80"
           >
             <span className="material-symbols-outlined">add_circle</span>
