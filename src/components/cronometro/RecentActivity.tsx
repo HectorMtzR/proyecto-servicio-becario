@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -8,7 +9,19 @@ import { toast } from "sonner";
 import { cancelWorkSessionAction, type RecentSessionData } from "@/actions/jornadas";
 import StatusChip from "@/components/shared/StatusChip";
 
-export default function RecentActivity({ sessions }: { sessions: RecentSessionData[] }) {
+interface Props {
+  sessions:         RecentSessionData[];
+  title?:           string;
+  showHistoryLink?: boolean;
+  emptyMessage?:    string;
+}
+
+export default function RecentActivity({
+  sessions,
+  title           = "Actividad Reciente",
+  showHistoryLink = true,
+  emptyMessage    = "Aún no tienes jornadas registradas. Inicia el cronómetro o registra una jornada manual para verla aquí.",
+}: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -30,15 +43,12 @@ export default function RecentActivity({ sessions }: { sessions: RecentSessionDa
     <section className="col-span-12 overflow-hidden rounded-xl bg-surface-container-lowest shadow-card">
       <div className="flex items-center justify-between p-8 pb-6">
         <h3 className="font-headline text-xl font-black tracking-tight text-on-surface">
-          Actividad Reciente
+          {title}
         </h3>
       </div>
 
       {sessions.length === 0 ? (
-        <div className="px-8 pb-8 text-sm text-secondary">
-          Aún no tienes jornadas registradas. Inicia el cronómetro o registra una
-          jornada manual para verla aquí.
-        </div>
+        <div className="px-8 pb-8 text-sm text-secondary">{emptyMessage}</div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -120,6 +130,18 @@ export default function RecentActivity({ sessions }: { sessions: RecentSessionDa
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {showHistoryLink && sessions.length > 0 && (
+        <div className="flex justify-end bg-surface-container-low/40 px-8 py-4">
+          <Link
+            href="/alumno/historial"
+            className="inline-flex items-center gap-1 font-label text-sm font-bold text-primary transition-colors hover:text-primary-container"
+          >
+            Ver Historial Completo
+            <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+          </Link>
         </div>
       )}
     </section>

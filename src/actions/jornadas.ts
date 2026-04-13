@@ -106,6 +106,17 @@ export async function getAlumnoStats(): Promise<AlumnoStatsData | null> {
  * Jornadas recientes del alumno (últimas 10, cualquier estado).
  */
 export async function getRecentSessions(): Promise<RecentSessionData[]> {
+  return fetchSessions(10);
+}
+
+/**
+ * Historial completo del alumno (todas las jornadas, cualquier estado).
+ */
+export async function getAllSessions(): Promise<RecentSessionData[]> {
+  return fetchSessions();
+}
+
+async function fetchSessions(take?: number): Promise<RecentSessionData[]> {
   const session = await auth();
   if (!session?.user || session.user.role !== "ALUMNO") return [];
 
@@ -113,7 +124,7 @@ export async function getRecentSessions(): Promise<RecentSessionData[]> {
     where: { studentId: session.user.id },
     include: { assignment: { include: { supervisor: true } } },
     orderBy: { startTime: "desc" },
-    take: 10,
+    ...(take ? { take } : {}),
   });
 
   return rows.map((r) => ({
