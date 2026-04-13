@@ -1,31 +1,23 @@
-"use client";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import Sidebar from "@/components/layout/Sidebar";
+import TopBar from "@/components/layout/TopBar";
 
-import { logoutAction } from "@/actions/auth";
-
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      {children}
+  const session = await auth();
+  if (!session?.user) redirect("/login");
 
-      {/* Botón temporal de logout — se eliminará cuando el sidebar esté implementado */}
-      <form
-        action={logoutAction}
-        className="fixed top-4 right-4 z-50"
-      >
-        <button
-          type="submit"
-          className="flex items-center gap-2 bg-surface-container-lowest shadow-card rounded-xl px-4 py-2.5 text-sm font-label font-medium text-secondary hover:text-on-surface hover:shadow-card-hover transition-all"
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
-            logout
-          </span>
-          Cerrar sesión
-        </button>
-      </form>
-    </>
+  const { name, role } = session.user;
+
+  return (
+    <div className="min-h-screen bg-surface">
+      <Sidebar role={role} />
+      <TopBar name={name ?? "Usuario"} role={role} />
+      <main className="ml-64 min-h-screen pt-16">{children}</main>
+    </div>
   );
 }

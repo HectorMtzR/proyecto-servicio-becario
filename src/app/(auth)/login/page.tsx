@@ -41,10 +41,10 @@ export default function LoginPage() {
               </span>
             </div>
             <h1 className="font-headline text-[26px] font-bold text-on-surface leading-tight">
-              Anáhuac Scholar
+              Portal Becario
             </h1>
             <p className="font-label text-[11px] uppercase tracking-[0.1em] text-secondary mt-1">
-              Portal Institucional
+              Anáhuac · Servicio Becario
             </p>
           </div>
 

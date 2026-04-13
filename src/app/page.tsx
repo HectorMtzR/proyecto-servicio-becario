@@ -3,9 +3,9 @@ import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
 
 const roleRedirects: Record<Role, string> = {
-  ADMIN:         "/admin/reportes",
-  JEFE_SERVICIO: "/jefe/validaciones",
-  ALUMNO:        "/alumno/jornadas",
+  ADMIN:         "/admin/inicio",
+  JEFE_SERVICIO: "/jefe/inicio",
+  ALUMNO:        "/alumno/inicio",
 };
 
 export default async function RootPage() {
