@@ -66,7 +66,7 @@ async function main() {
       name:               "Ing. Carlos Martínez",
       passwordHash:       jefeHash,
       role:               Role.JEFE_SERVICIO,
-      mustChangePassword: false,
+      mustChangePassword: true,
       isActive:           true,
     },
   });
@@ -77,7 +77,7 @@ async function main() {
       name:               "Lic. María González",
       passwordHash:       jefeHash,
       role:               Role.JEFE_SERVICIO,
-      mustChangePassword: false,
+      mustChangePassword: true,
       isActive:           true,
     },
   });
@@ -91,7 +91,7 @@ async function main() {
       name:               "Ana Ramírez López",
       passwordHash:       alumnoHash,
       role:               Role.ALUMNO,
-      mustChangePassword: false,
+      mustChangePassword: true,
       isActive:           true,
     },
   });
@@ -102,7 +102,7 @@ async function main() {
       name:               "Luis Hernández Torres",
       passwordHash:       alumnoHash,
       role:               Role.ALUMNO,
-      mustChangePassword: false,
+      mustChangePassword: true,
       isActive:           true,
     },
   });
@@ -113,7 +113,7 @@ async function main() {
       name:               "Sofía Castro Vega",
       passwordHash:       alumnoHash,
       role:               Role.ALUMNO,
-      mustChangePassword: false,
+      mustChangePassword: true,
       isActive:           true,
     },
   });
@@ -124,7 +124,7 @@ async function main() {
       name:               "Diego Morales Ruiz",
       passwordHash:       alumnoHash,
       role:               Role.ALUMNO,
-      mustChangePassword: false,
+      mustChangePassword: true,
       isActive:           true,
     },
   });
@@ -135,7 +135,7 @@ async function main() {
       name:               "Valentina Soto Pérez",
       passwordHash:       alumnoHash,
       role:               Role.ALUMNO,
-      mustChangePassword: false,
+      mustChangePassword: true,
       isActive:           true,
     },
   });

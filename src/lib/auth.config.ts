@@ -15,13 +15,18 @@ export const authConfig: NextAuthConfig = {
         return true;
       }
 
-      // Ruta de cambio de contraseña — permitida si está autenticado
-      if (pathname === "/cambiar-password") {
-        return isLoggedIn;
-      }
-
       // Todo lo demás requiere autenticación
       if (!isLoggedIn) return false;
+
+      // Ruta de cambio de contraseña — siempre permitida si está autenticado
+      if (pathname === "/cambiar-password") {
+        return true;
+      }
+
+      // Forzar cambio de contraseña antes de acceder a cualquier otra ruta
+      if (auth?.user?.mustChangePassword) {
+        return Response.redirect(new URL("/cambiar-password", nextUrl));
+      }
 
       // Protección por rol
       const role = auth?.user?.role;
