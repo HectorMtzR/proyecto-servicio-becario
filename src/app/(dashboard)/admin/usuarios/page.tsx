@@ -1,8 +1,14 @@
-export default function AdminUsuariosPage() {
-  return (
-    <main className="p-8">
-      <h1 className="font-headline text-2xl font-bold text-on-surface">Usuarios</h1>
-      <p className="text-secondary mt-2">Próximamente: CRUD de usuarios.</p>
-    </main>
-  );
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { listUsers, listCareers } from "@/actions/usuarios";
+import UsuariosClient from "@/components/admin/UsuariosClient";
+
+export default async function AdminUsuariosPage() {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+  if (session.user.role !== "ADMIN") redirect("/");
+
+  const [users, careers] = await Promise.all([listUsers(), listCareers()]);
+
+  return <UsuariosClient users={users} careers={careers} />;
 }
