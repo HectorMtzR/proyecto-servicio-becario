@@ -1,8 +1,14 @@
-export default function AdminPeriodosPage() {
-  return (
-    <main className="p-8">
-      <h1 className="font-headline text-2xl font-bold text-on-surface">Períodos</h1>
-      <p className="text-secondary mt-2">Próximamente: gestión de períodos.</p>
-    </main>
-  );
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { listPeriodsAdmin } from "@/actions/periodos";
+import PeriodosClient from "@/components/admin/PeriodosClient";
+
+export default async function AdminPeriodosPage() {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+  if (session.user.role !== "ADMIN") redirect("/");
+
+  const periods = await listPeriodsAdmin();
+
+  return <PeriodosClient periods={periods} />;
 }

@@ -40,19 +40,45 @@ export const createUserSchema = z
     email:    emailInstitucional,
     password: passwordMin,
     role:     roleSchema,
-    profile:  studentProfileSchema.optional(),
+    profile:  z.any().optional(),
   })
   .superRefine((val, ctx) => {
-    if (val.role === "ALUMNO" && !val.profile) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["profile"],
-        message: "Completa los datos del alumno",
-      });
+    if (val.role !== "ALUMNO") return;
+    const result = studentProfileSchema.safeParse(val.profile);
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        ctx.addIssue({
+          code:    z.ZodIssueCode.custom,
+          path:    ["profile", ...issue.path],
+          message: issue.message,
+        });
+      }
     }
   });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
+
+export const editUserFormSchema = z
+  .object({
+    name:    nombre,
+    role:    roleSchema.optional(),
+    profile: z.any().optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.role !== "ALUMNO") return;
+    const result = studentProfileSchema.safeParse(val.profile);
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        ctx.addIssue({
+          code:    z.ZodIssueCode.custom,
+          path:    ["profile", ...issue.path],
+          message: issue.message,
+        });
+      }
+    }
+  });
+
+export type EditUserFormValues = z.infer<typeof editUserFormSchema>;
 
 export const updateUserSchema = z.object({
   id:   z.string().min(1),

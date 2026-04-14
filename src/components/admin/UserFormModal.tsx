@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
   createUserSchema,
-  updateUserSchema,
+  editUserFormSchema,
   type CreateUserInput,
   type UpdateUserInput,
 } from "@/lib/validations/usuarios";
@@ -56,7 +56,7 @@ export default function UserFormModal({ open, mode, user, careers, onClose }: Pr
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(mode === "create" ? createUserSchema : updateUserSchema) as never,
+    resolver: zodResolver(mode === "create" ? createUserSchema : editUserFormSchema) as never,
     defaultValues: {
       name:     "",
       email:    "",

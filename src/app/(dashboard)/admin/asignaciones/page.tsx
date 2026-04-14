@@ -1,8 +1,21 @@
-export default function AdminAsignacionesPage() {
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { listAssignmentsData } from "@/actions/asignaciones";
+import AsignacionesClient from "@/components/admin/AsignacionesClient";
+
+export default async function AdminAsignacionesPage() {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+  if (session.user.role !== "ADMIN") redirect("/");
+
+  const data = await listAssignmentsData();
+
   return (
-    <main className="p-8">
-      <h1 className="font-headline text-2xl font-bold text-on-surface">Asignaciones</h1>
-      <p className="text-secondary mt-2">Próximamente: gestión de asignaciones.</p>
-    </main>
+    <AsignacionesClient
+      assignments={data.assignments}
+      activePeriod={data.activePeriod}
+      availableStudents={data.availableStudents}
+      supervisors={data.supervisors}
+    />
   );
 }
