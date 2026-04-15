@@ -31,6 +31,7 @@ const navByRole: Record<Role, NavItem[]> = {
     { href: "/admin/carreras",     label: "Carreras",     icon: "school" },
     { href: "/admin/periodos",     label: "Períodos",     icon: "event" },
     { href: "/admin/reportes",     label: "Reportes",     icon: "analytics" },
+    { href: "/admin/importar",     label: "Importar CSV", icon: "upload_file" },
     { href: "/perfil",             label: "Perfil",       icon: "person" },
   ],
 };
