@@ -25,6 +25,16 @@ enum Status {
   CANCELADA
 }
 
+enum ScholarshipType {
+  ACADEMICA
+  EXCELENCIA
+  DEPORTIVA
+  CULTURAL
+  COMERCIAL
+  LIDERAZGO_SOCIAL
+  SEP
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model User {
@@ -76,6 +86,7 @@ model StudentProfile {
   semester           Int
   enrollmentYear     Int
   scholarshipPercent Int
+  scholarshipType    ScholarshipType @default(ACADEMICA)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 

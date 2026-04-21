@@ -12,6 +12,7 @@ import {
   type UpdateUserInput,
 } from "@/lib/validations/usuarios";
 import type { ActionResult, Role } from "@/types";
+import type { ScholarshipType } from "@prisma/client";
 
 export interface AdminUserRow {
   id:                 string;
@@ -29,6 +30,7 @@ export interface AdminUserRow {
     semester:           number;
     enrollmentYear:     number;
     scholarshipPercent: number;
+    scholarshipType:    ScholarshipType;
   };
 }
 
@@ -71,6 +73,7 @@ export async function listUsers(): Promise<AdminUserRow[]> {
           semester:           u.studentProfile.semester,
           enrollmentYear:     u.studentProfile.enrollmentYear,
           scholarshipPercent: u.studentProfile.scholarshipPercent,
+          scholarshipType:    u.studentProfile.scholarshipType,
         }
       : null,
   }));
@@ -131,6 +134,7 @@ export async function createUserAction(
                   semester:           data.profile.semester,
                   enrollmentYear:     data.profile.enrollmentYear,
                   scholarshipPercent: data.profile.scholarshipPercent,
+                  scholarshipType:   data.profile.scholarshipType,
                 },
               },
             }
@@ -192,6 +196,7 @@ export async function updateUserAction(
             semester:           data.profile.semester,
             enrollmentYear:     data.profile.enrollmentYear,
             scholarshipPercent: data.profile.scholarshipPercent,
+            scholarshipType:    data.profile.scholarshipType,
           },
         }),
       ]);

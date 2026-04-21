@@ -22,6 +22,10 @@ const nombre = z
 
 const roleSchema = z.enum(["ADMIN", "JEFE_SERVICIO", "ALUMNO"]);
 
+const scholarshipTypeSchema = z
+  .enum(["ACADEMICA", "EXCELENCIA", "DEPORTIVA", "CULTURAL", "COMERCIAL", "LIDERAZGO_SOCIAL", "SEP"])
+  .default("ACADEMICA");
+
 const studentProfileSchema = z.object({
   studentId:          z.string().trim().min(3, "Matrícula inválida").max(20),
   careerId:           z.string().min(1, "Selecciona una carrera"),
@@ -32,6 +36,7 @@ const studentProfileSchema = z.object({
     .int()
     .min(1, "Mínimo 1%")
     .max(100, "Máximo 100%"),
+  scholarshipType:    scholarshipTypeSchema,
 });
 
 export const createUserSchema = z
@@ -90,6 +95,7 @@ export const updateUserSchema = z.object({
       semester:           z.coerce.number().int().min(1).max(20),
       enrollmentYear:     z.coerce.number().int().min(1990).max(2100),
       scholarshipPercent: z.coerce.number().int().min(1).max(100),
+      scholarshipType:    scholarshipTypeSchema,
     })
     .optional(),
 });

@@ -18,6 +18,17 @@ import {
   type CareerOption,
 } from "@/actions/usuarios";
 import type { Role } from "@/types";
+import type { ScholarshipType } from "@prisma/client";
+
+const SCHOLARSHIP_TYPE_OPTIONS: { value: ScholarshipType; label: string }[] = [
+  { value: "ACADEMICA",        label: "Académica" },
+  { value: "EXCELENCIA",       label: "Excelencia" },
+  { value: "DEPORTIVA",        label: "Deportiva" },
+  { value: "CULTURAL",         label: "Cultural" },
+  { value: "COMERCIAL",        label: "Comercial" },
+  { value: "LIDERAZGO_SOCIAL", label: "Liderazgo Social" },
+  { value: "SEP",              label: "SEP" },
+];
 
 type Mode = "create" | "edit";
 
@@ -40,15 +51,17 @@ type FormValues = {
     semester:           number;
     enrollmentYear:     number;
     scholarshipPercent: number;
+    scholarshipType:    ScholarshipType;
   };
 };
 
-const emptyProfile = {
+const emptyProfile: FormValues["profile"] = {
   studentId:          "",
   careerId:           "",
   semester:           1,
   enrollmentYear:     new Date().getFullYear(),
   scholarshipPercent: 50,
+  scholarshipType:    "ACADEMICA",
 };
 
 export default function UserFormModal({ open, mode, user, careers, onClose }: Props) {
@@ -86,6 +99,7 @@ export default function UserFormModal({ open, mode, user, careers, onClose }: Pr
               semester:           user.profile.semester,
               enrollmentYear:     user.profile.enrollmentYear,
               scholarshipPercent: user.profile.scholarshipPercent,
+              scholarshipType:    user.profile.scholarshipType,
             }
           : emptyProfile,
       });
@@ -336,7 +350,7 @@ export default function UserFormModal({ open, mode, user, careers, onClose }: Pr
                     </p>
                   )}
                 </div>
-                <div className="md:col-span-2">
+                <div>
                   <label
                     htmlFor="u-scholarship"
                     className="mb-2 block font-label text-xs font-bold uppercase tracking-widest text-secondary"
@@ -357,7 +371,34 @@ export default function UserFormModal({ open, mode, user, careers, onClose }: Pr
                       {errors.profile.scholarshipPercent.message}
                     </p>
                   )}
-                  <p className="mt-2 text-xs text-secondary">
+                </div>
+                <div>
+                  <label
+                    htmlFor="u-scholarship-type"
+                    className="mb-2 block font-label text-xs font-bold uppercase tracking-widest text-secondary"
+                  >
+                    Tipo de beca
+                  </label>
+                  <select
+                    id="u-scholarship-type"
+                    disabled={isPending}
+                    {...form.register("profile.scholarshipType")}
+                    className="w-full rounded-xl bg-surface-container-lowest px-4 py-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary-container/30"
+                  >
+                    {SCHOLARSHIP_TYPE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.profile?.scholarshipType && (
+                    <p className="mt-2 text-xs font-medium text-error">
+                      {errors.profile.scholarshipType.message}
+                    </p>
+                  )}
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-xs text-secondary">
                     El porcentaje determina la meta de horas. Solo aplica a nuevas asignaciones.
                   </p>
                 </div>
