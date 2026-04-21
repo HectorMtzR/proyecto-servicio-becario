@@ -6,7 +6,7 @@ import { stopWorkSessionSchema } from "@/lib/validations/cronometro";
 import { revalidatePath } from "next/cache";
 import type { ActionResult } from "@/types";
 
-const MIN_MINUTES = 15;
+const MIN_MINUTES = 30;
 
 export interface ActiveSessionData {
   id:           string;
@@ -196,7 +196,7 @@ export async function stopWorkSessionAction(input: {
     if (totalMinutes < MIN_MINUTES) {
       return {
         success: false,
-        error:   `La jornada debe durar al menos ${MIN_MINUTES} minutos. Han transcurrido ${totalMinutes}.`,
+        error:   `La jornada debe durar al menos 30 minutos. Han transcurrido ${totalMinutes}.`,
       };
     }
 

@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import {
   createUserSchema,
@@ -277,6 +278,32 @@ export async function getDeactivateBlockReason(
   } catch (error) {
     console.error("[getDeactivateBlockReason]", error);
     return { success: false, error: "No se pudo verificar el usuario" };
+  }
+}
+
+export async function resetPasswordAction(
+  userId: string,
+): Promise<ActionResult<{ tempPassword: string }>> {
+  try {
+    const guard = await requireAdmin();
+    if ("error" in guard) return { success: false, error: guard.error };
+
+    const user = await db.user.findUnique({ where: { id: userId } });
+    if (!user) return { success: false, error: "Usuario no encontrado" };
+    if (!user.isActive) return { success: false, error: "No se puede resetear la contraseña de un usuario inactivo" };
+
+    const tempPassword = randomBytes(6).toString("base64url").slice(0, 10);
+    const passwordHash = await bcrypt.hash(tempPassword, 12);
+
+    await db.user.update({
+      where: { id: userId },
+      data: { passwordHash, mustChangePassword: true },
+    });
+
+    return { success: true, data: { tempPassword } };
+  } catch (error) {
+    console.error("[resetPasswordAction]", error);
+    return { success: false, error: "No se pudo resetear la contraseña" };
   }
 }
 

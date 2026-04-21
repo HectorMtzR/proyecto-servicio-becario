@@ -82,9 +82,9 @@ export default function Cronometro({ initialActive, hasAssignment }: CronometroP
   }
 
   function handleOpenStop() {
-    if (elapsedSecs < 15 * 60) {
+    if (elapsedSecs < 30 * 60) {
       toast.error(
-        `La jornada debe durar al menos 15 minutos. Transcurridos: ${Math.floor(elapsedSecs / 60)} min.`,
+        `La jornada debe durar al menos 30 minutos. Transcurridos: ${Math.floor(elapsedSecs / 60)} min.`,
       );
       return;
     }

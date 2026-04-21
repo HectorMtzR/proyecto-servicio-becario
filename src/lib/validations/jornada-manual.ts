@@ -24,9 +24,9 @@ export const jornadaManualSchema = z
       const start = new Date(`${d.date}T${d.startTime}`);
       const end   = new Date(`${d.date}T${d.endTime}`);
       const mins  = (end.getTime() - start.getTime()) / 60000;
-      return mins >= 15;
+      return mins >= 30;
     },
-    { message: "La jornada debe durar al menos 15 minutos", path: ["endTime"] },
+    { message: "La jornada debe durar al menos 30 minutos", path: ["endTime"] },
   )
   .refine(
     (d) => {

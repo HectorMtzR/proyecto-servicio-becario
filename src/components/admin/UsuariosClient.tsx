@@ -14,6 +14,7 @@ import {
 import type { Role } from "@/types";
 import UserFormModal from "./UserFormModal";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import ResetPasswordModal from "./ResetPasswordModal";
 
 interface Props {
   users:   AdminUserRow[];
@@ -52,6 +53,8 @@ export default function UsuariosClient({ users, careers }: Props) {
     | null
   >(null);
   const [blockReason, setBlockReason] = useState<string | null>(null);
+
+  const [resetTarget, setResetTarget] = useState<{ id: string; name: string } | null>(null);
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
@@ -229,6 +232,16 @@ export default function UsuariosClient({ users, careers }: Props) {
                           <span className="material-symbols-outlined text-[16px]">edit</span>
                           Editar
                         </button>
+                        {u.isActive && (
+                          <button
+                            type="button"
+                            onClick={() => setResetTarget({ id: u.id, name: u.name })}
+                            className="inline-flex items-center gap-1 rounded-xl bg-surface-container-low px-3 py-2 text-xs font-bold text-on-surface transition-all hover:bg-surface-container-high"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">lock_reset</span>
+                            Resetear contraseña
+                          </button>
+                        )}
                         {u.isActive ? (
                           <button
                             type="button"
@@ -265,6 +278,14 @@ export default function UsuariosClient({ users, careers }: Props) {
         careers={careers}
         onClose={() => setModal(null)}
       />
+
+      {resetTarget && (
+        <ResetPasswordModal
+          user={resetTarget}
+          open={true}
+          onClose={() => setResetTarget(null)}
+        />
+      )}
 
       <ConfirmDialog
         open={confirm !== null}

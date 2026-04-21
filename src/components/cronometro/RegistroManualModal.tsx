@@ -73,7 +73,7 @@ export default function RegistroManualModal({ open, onClose, hasAssignment }: Pr
         </h2>
         <p className="mb-6 text-sm text-secondary">
           Registra una jornada que no capturaste con el cronómetro. Pasará por
-          validación de tu jefe como cualquier otra (mínimo 15 minutos).
+          validación de tu jefe como cualquier otra (mínimo 30 minutos).
         </p>
 
         {!hasAssignment ? (
