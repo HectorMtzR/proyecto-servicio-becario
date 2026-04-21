@@ -261,74 +261,75 @@ async function main() {
   console.log("✅ Perfiles de alumno verificados");
 
   // ─── Assignments ───────────────────────────────────────────────────────────
-  const assign1 = await prisma.assignment.upsert({
-    where:  { studentId_periodId: { studentId: alumno1.id, periodId: period.id } },
-    update: {},
-    create: {
-      studentId:          alumno1.id,
-      supervisorId:       jefe1.id,
-      periodId:           period.id,
-      department:         "Laboratorios TI",
-      targetHours:        80,
-      accumulatedMinutes: 0,
-      isActive:           true,
-    },
+  // La tabla Assignment ya no tiene unique (studentId, periodId) porque se permite
+  // tener una asignación activa + n removidas por período. Por eso hacemos un
+  // upsert manual: buscar activa; si no existe, crearla.
+  async function ensureAssignment(data: {
+    studentId:    string;
+    supervisorId: string;
+    periodId:     string;
+    department:   string;
+    targetHours:  number;
+  }) {
+    const existing = await prisma.assignment.findFirst({
+      where: {
+        studentId: data.studentId,
+        periodId:  data.periodId,
+        isActive:  true,
+      },
+    });
+    if (existing) return existing;
+    return prisma.assignment.create({
+      data: {
+        studentId:          data.studentId,
+        supervisorId:       data.supervisorId,
+        periodId:           data.periodId,
+        department:         data.department,
+        targetHours:        data.targetHours,
+        accumulatedMinutes: 0,
+        isActive:           true,
+      },
+    });
+  }
+
+  const assign1 = await ensureAssignment({
+    studentId:    alumno1.id,
+    supervisorId: jefe1.id,
+    periodId:     period.id,
+    department:   "Laboratorios TI",
+    targetHours:  80,
   });
 
-  const assign2 = await prisma.assignment.upsert({
-    where:  { studentId_periodId: { studentId: alumno2.id, periodId: period.id } },
-    update: {},
-    create: {
-      studentId:          alumno2.id,
-      supervisorId:       jefe1.id,
-      periodId:           period.id,
-      department:         "Laboratorios TI",
-      targetHours:        50,
-      accumulatedMinutes: 0,
-      isActive:           true,
-    },
+  const assign2 = await ensureAssignment({
+    studentId:    alumno2.id,
+    supervisorId: jefe1.id,
+    periodId:     period.id,
+    department:   "Laboratorios TI",
+    targetHours:  50,
   });
 
-  const assign3 = await prisma.assignment.upsert({
-    where:  { studentId_periodId: { studentId: alumno3.id, periodId: period.id } },
-    update: {},
-    create: {
-      studentId:          alumno3.id,
-      supervisorId:       jefe1.id,
-      periodId:           period.id,
-      department:         "Coordinación Académica",
-      targetHours:        30,
-      accumulatedMinutes: 0,
-      isActive:           true,
-    },
+  const assign3 = await ensureAssignment({
+    studentId:    alumno3.id,
+    supervisorId: jefe1.id,
+    periodId:     period.id,
+    department:   "Coordinación Académica",
+    targetHours:  30,
   });
 
-  const assign4 = await prisma.assignment.upsert({
-    where:  { studentId_periodId: { studentId: alumno4.id, periodId: period.id } },
-    update: {},
-    create: {
-      studentId:          alumno4.id,
-      supervisorId:       jefe2.id,
-      periodId:           period.id,
-      department:         "Coordinación Académica",
-      targetHours:        100,
-      accumulatedMinutes: 0,
-      isActive:           true,
-    },
+  const assign4 = await ensureAssignment({
+    studentId:    alumno4.id,
+    supervisorId: jefe2.id,
+    periodId:     period.id,
+    department:   "Coordinación Académica",
+    targetHours:  100,
   });
 
-  const assign5 = await prisma.assignment.upsert({
-    where:  { studentId_periodId: { studentId: alumno5.id, periodId: period.id } },
-    update: {},
-    create: {
-      studentId:          alumno5.id,
-      supervisorId:       jefe2.id,
-      periodId:           period.id,
-      department:         "Bufete Jurídico",
-      targetHours:        25,
-      accumulatedMinutes: 0,
-      isActive:           true,
-    },
+  const assign5 = await ensureAssignment({
+    studentId:    alumno5.id,
+    supervisorId: jefe2.id,
+    periodId:     period.id,
+    department:   "Bufete Jurídico",
+    targetHours:  25,
   });
 
   console.log("✅ Assignments verificados");

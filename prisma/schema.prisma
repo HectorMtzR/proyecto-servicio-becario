@@ -52,6 +52,7 @@ model User {
   studentProfile        StudentProfile?
   studentAssignments    Assignment[]    @relation("StudentAssignments")
   supervisorAssignments Assignment[]    @relation("SupervisorAssignments")
+  removedAssignments    Assignment[]    @relation("RemovedAssignments")
   workSessions          WorkSession[]   @relation("StudentSessions")
   validatedSessions     WorkSession[]   @relation("ValidatedSessions")
 }
@@ -96,24 +97,26 @@ model StudentProfile {
 }
 
 model Assignment {
-  id                 String   @id @default(cuid())
+  id                 String    @id @default(cuid())
   studentId          String
   supervisorId       String
   periodId           String
   department         String
   targetHours        Int
-  accumulatedMinutes Int      @default(0)
-  isActive           Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  accumulatedMinutes Int       @default(0)
+  isActive           Boolean   @default(true)
+  removalReason      String?
+  removedAt          DateTime?
+  removedById        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   // Relations
   student      User          @relation("StudentAssignments", fields: [studentId], references: [id])
   supervisor   User          @relation("SupervisorAssignments", fields: [supervisorId], references: [id])
   period       Period        @relation(fields: [periodId], references: [id])
+  removedBy    User?         @relation("RemovedAssignments", fields: [removedById], references: [id])
   workSessions WorkSession[]
-
-  @@unique([studentId, periodId])
 }
 
 model WorkSession {

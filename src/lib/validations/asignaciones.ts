@@ -21,3 +21,29 @@ export const updateAssignmentSchema = z.object({
 });
 
 export type UpdateAssignmentInput = z.infer<typeof updateAssignmentSchema>;
+
+export const removeAssignmentSchema = z
+  .object({
+    assignmentId:    z.string().min(1, "Asignación inválida"),
+    reason:          z
+      .string()
+      .trim()
+      .min(3, "Mínimo 3 caracteres")
+      .max(500, "Máximo 500 caracteres"),
+    newSupervisorId: z.string().optional(),
+    newDepartment:   z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.newSupervisorId && data.newSupervisorId.length > 0) {
+        return !!data.newDepartment && data.newDepartment.trim().length >= 2;
+      }
+      return true;
+    },
+    {
+      message: "El departamento es obligatorio al reasignar",
+      path:    ["newDepartment"],
+    },
+  );
+
+export type RemoveAssignmentInput = z.infer<typeof removeAssignmentSchema>;

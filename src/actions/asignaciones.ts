@@ -6,8 +6,10 @@ import { revalidatePath } from "next/cache";
 import {
   createAssignmentSchema,
   updateAssignmentSchema,
+  removeAssignmentSchema,
   type CreateAssignmentInput,
   type UpdateAssignmentInput,
+  type RemoveAssignmentInput,
 } from "@/lib/validations/asignaciones";
 import type { ActionResult } from "@/types";
 
@@ -26,6 +28,10 @@ export interface AdminAssignmentRow {
   targetHours:        number;
   accumulatedMinutes: number;
   isActive:           boolean;
+  removalReason:      string | null;
+  removedAt:          string | null;
+  removedByName:      string | null;
+  pendingValidationCount: number;
 }
 
 export interface ActivePeriodInfo {
@@ -86,6 +92,11 @@ export async function listAssignmentsData(): Promise<AssignmentsData> {
         },
         supervisor: true,
         period:     true,
+        removedBy:  { select: { id: true, name: true } },
+        workSessions: {
+          where:  { status: "PENDIENTE", endTime: { not: null } },
+          select: { id: true },
+        },
       },
     }),
     db.period.findFirst({
@@ -101,7 +112,7 @@ export async function listAssignmentsData(): Promise<AssignmentsData> {
   let availableStudents: StudentOption[] = [];
   if (activePeriod) {
     const assignedStudentIds = await db.assignment.findMany({
-      where:  { periodId: activePeriod.id },
+      where:  { periodId: activePeriod.id, isActive: true },
       select: { studentId: true },
     });
     const assignedSet = new Set(assignedStudentIds.map((a) => a.studentId));
@@ -142,6 +153,10 @@ export async function listAssignmentsData(): Promise<AssignmentsData> {
       targetHours:        a.targetHours,
       accumulatedMinutes: a.accumulatedMinutes,
       isActive:           a.isActive,
+      removalReason:      a.removalReason,
+      removedAt:          a.removedAt?.toISOString() ?? null,
+      removedByName:      a.removedBy?.name ?? null,
+      pendingValidationCount: a.workSessions.length,
     })),
     activePeriod: activePeriod
       ? { id: activePeriod.id, name: activePeriod.name, isClosed: activePeriod.isClosed }
@@ -193,11 +208,15 @@ export async function createAssignmentAction(
       return { success: false, error: "El jefe está desactivado" };
     }
 
-    const duplicate = await db.assignment.findUnique({
-      where: { studentId_periodId: { studentId: data.studentId, periodId: activePeriod.id } },
+    const duplicate = await db.assignment.findFirst({
+      where: {
+        studentId: data.studentId,
+        periodId:  activePeriod.id,
+        isActive:  true,
+      },
     });
     if (duplicate) {
-      return { success: false, error: "El alumno ya tiene una asignación en este período" };
+      return { success: false, error: "El alumno ya tiene una asignación activa en este período" };
     }
 
     const assignment = await db.assignment.create({
@@ -241,6 +260,9 @@ export async function updateAssignmentAction(
     if (assignment.period.isClosed) {
       return { success: false, error: "No se puede modificar una asignación en período cerrado" };
     }
+    if (!assignment.isActive) {
+      return { success: false, error: "No se puede modificar una asignación removida" };
+    }
 
     const supervisor = await db.user.findUnique({ where: { id: data.supervisorId } });
     if (!supervisor || supervisor.role !== "JEFE_SERVICIO") {
@@ -263,5 +285,118 @@ export async function updateAssignmentAction(
   } catch (error) {
     console.error("[updateAssignmentAction]", error);
     return { success: false, error: "No se pudo actualizar la asignación" };
+  }
+}
+
+export async function removeOrReassignAssignmentAction(
+  input: RemoveAssignmentInput,
+): Promise<ActionResult<{ newAssignmentId: string | null }>> {
+  try {
+    const session = await auth();
+    if (!session?.user) return { success: false, error: "No autenticado" };
+    if (session.user.role !== "ADMIN") {
+      return { success: false, error: "Solo el administrador puede gestionar asignaciones" };
+    }
+    const adminId = session.user.id;
+
+    const parsed = removeAssignmentSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0].message };
+    }
+    const data = parsed.data;
+
+    const result = await db.$transaction(async (tx) => {
+      const assignment = await tx.assignment.findUnique({
+        where:   { id: data.assignmentId },
+        include: {
+          period:       true,
+          workSessions: true,
+        },
+      });
+      if (!assignment) {
+        return { ok: false as const, error: "Asignación no encontrada" };
+      }
+      if (assignment.period.isClosed) {
+        return { ok: false as const, error: "No se puede modificar una asignación en período cerrado" };
+      }
+      if (!assignment.isActive) {
+        return { ok: false as const, error: "La asignación ya está removida" };
+      }
+
+      const pendingTerminated = assignment.workSessions.filter(
+        (ws) => ws.status === "PENDIENTE" && ws.endTime !== null,
+      ).length;
+      if (pendingTerminated > 0) {
+        return {
+          ok:    false as const,
+          error: `Hay ${pendingTerminated} jornada(s) pendientes de validación. El jefe debe resolverlas antes de reasignar.`,
+        };
+      }
+
+      let newSupervisor: { id: string; role: string; isActive: boolean } | null = null;
+      if (data.newSupervisorId) {
+        const sup = await tx.user.findUnique({
+          where:  { id: data.newSupervisorId },
+          select: { id: true, role: true, isActive: true },
+        });
+        if (!sup || sup.role !== "JEFE_SERVICIO") {
+          return { ok: false as const, error: "Jefe inválido" };
+        }
+        if (!sup.isActive) {
+          return { ok: false as const, error: "El jefe está desactivado" };
+        }
+        if (sup.id === assignment.supervisorId) {
+          return { ok: false as const, error: "Selecciona un jefe distinto al actual" };
+        }
+        newSupervisor = sup;
+      }
+
+      await tx.assignment.update({
+        where: { id: assignment.id },
+        data:  {
+          isActive:      false,
+          removedAt:     new Date(),
+          removedById:   adminId,
+          removalReason: data.reason,
+        },
+      });
+
+      let newAssignmentId: string | null = null;
+      if (newSupervisor && data.newDepartment) {
+        const created = await tx.assignment.create({
+          data: {
+            studentId:          assignment.studentId,
+            supervisorId:       newSupervisor.id,
+            periodId:           assignment.periodId,
+            department:         data.newDepartment.trim(),
+            targetHours:        assignment.targetHours,
+            accumulatedMinutes: assignment.accumulatedMinutes,
+            isActive:           true,
+          },
+        });
+        newAssignmentId = created.id;
+
+        await tx.workSession.updateMany({
+          where: {
+            assignmentId: assignment.id,
+            endTime:      null,
+          },
+          data: { assignmentId: created.id },
+        });
+      }
+
+      return { ok: true as const, newAssignmentId };
+    });
+
+    if (!result.ok) {
+      return { success: false, error: result.error };
+    }
+
+    revalidatePath("/admin/asignaciones");
+    revalidatePath("/admin/inicio");
+    return { success: true, data: { newAssignmentId: result.newAssignmentId } };
+  } catch (error) {
+    console.error("[removeOrReassignAssignmentAction]", error);
+    return { success: false, error: "No se pudo procesar la operación" };
   }
 }

@@ -2,12 +2,26 @@
 
 import { useMemo, useState } from "react";
 import AssignmentFormModal from "./AssignmentFormModal";
+import ReasignarModal from "./ReasignarModal";
 import type {
   AdminAssignmentRow,
   ActivePeriodInfo,
   StudentOption,
   SupervisorOption,
 } from "@/actions/asignaciones";
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "";
+  try {
+    return new Intl.DateTimeFormat("es-MX", {
+      day:   "2-digit",
+      month: "short",
+      year:  "numeric",
+    }).format(new Date(iso));
+  } catch {
+    return "";
+  }
+}
 
 interface Props {
   assignments:       AdminAssignmentRow[];
@@ -27,6 +41,7 @@ export default function AsignacionesClient({
   const [modal, setModal] = useState<
     { mode: "create" } | { mode: "edit"; assignment: AdminAssignmentRow } | null
   >(null);
+  const [removeModal, setRemoveModal] = useState<AdminAssignmentRow | null>(null);
 
   const [scope, setScope] = useState<ScopeFilter>("ACTIVE");
 
@@ -122,6 +137,8 @@ export default function AsignacionesClient({
               <tbody className="divide-y divide-zinc-50">
                 {filtered.map((a) => {
                   const hours = Math.round((a.accumulatedMinutes / 60) * 10) / 10;
+                  const isRemoved = !a.isActive && !a.periodIsClosed;
+                  const canManage = a.isActive && !a.periodIsClosed;
                   return (
                     <tr key={a.id} className="transition-colors hover:bg-surface-bright">
                       <td className="px-6 py-4">
@@ -146,24 +163,54 @@ export default function AsignacionesClient({
                             Activo
                           </span>
                         ) : (
-                          <span className="inline-flex items-center rounded-full bg-surface-container-high px-3 py-1 text-[10px] font-black uppercase tracking-wider text-on-surface-variant">
-                            Inactivo
-                          </span>
+                          <div className="space-y-1">
+                            <span className="inline-flex items-center rounded-full bg-error-container px-3 py-1 text-[10px] font-black uppercase tracking-wider text-on-error-container">
+                              Removida
+                            </span>
+                            {a.removedAt && (
+                              <p className="text-[11px] text-secondary">
+                                {formatDate(a.removedAt)}
+                                {a.removedByName && ` · ${a.removedByName}`}
+                              </p>
+                            )}
+                            {a.removalReason && (
+                              <p
+                                className="max-w-[220px] truncate text-[11px] text-on-surface-variant"
+                                title={a.removalReason}
+                              >
+                                {a.removalReason}
+                              </p>
+                            )}
+                          </div>
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">
                         {a.periodIsClosed ? (
                           <span className="text-xs text-secondary">Histórico</span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => setModal({ mode: "edit", assignment: a })}
-                            className="inline-flex items-center gap-1 rounded-xl bg-surface-container-low px-3 py-2 text-xs font-bold text-on-surface transition-all hover:bg-surface-container-high"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">edit</span>
-                            Editar
-                          </button>
-                        )}
+                        ) : isRemoved ? (
+                          <span className="text-xs text-secondary">—</span>
+                        ) : canManage ? (
+                          <div className="flex justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setModal({ mode: "edit", assignment: a })}
+                              className="inline-flex items-center gap-1 rounded-xl bg-surface-container-low px-3 py-2 text-xs font-bold text-on-surface transition-all hover:bg-surface-container-high"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">edit</span>
+                              Editar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setRemoveModal(a)}
+                              className="inline-flex items-center gap-1 rounded-xl bg-surface-container-low px-3 py-2 text-xs font-bold text-error transition-all hover:bg-error-container hover:text-on-error-container"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">
+                                swap_horiz
+                              </span>
+                              Reasignar / Remover
+                            </button>
+                          </div>
+                        ) : null}
                       </td>
                     </tr>
                   );
@@ -182,6 +229,13 @@ export default function AsignacionesClient({
         availableStudents={availableStudents}
         supervisors={supervisors}
         onClose={() => setModal(null)}
+      />
+
+      <ReasignarModal
+        open={removeModal !== null}
+        assignment={removeModal}
+        supervisors={supervisors}
+        onClose={() => setRemoveModal(null)}
       />
     </section>
   );
