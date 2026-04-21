@@ -40,6 +40,7 @@ export default function ProgressWidget({ stats }: { stats: AlumnoStatsData | nul
     "En Tiempo": "En Tiempo",
     "Atrasado":  "Atrasado",
     "Sin Datos": "—",
+    "Voluntario": "Voluntario",
   };
 
   return (

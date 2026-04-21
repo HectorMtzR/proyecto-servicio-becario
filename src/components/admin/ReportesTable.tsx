@@ -9,6 +9,7 @@ type SortKey =
   | "careerName"
   | "faculty"
   | "scholarshipPercent"
+  | "scholarshipType"
   | "targetHours"
   | "accumulatedHours"
   | "progressPercent"
@@ -16,11 +17,22 @@ type SortKey =
 
 type SortDir = "asc" | "desc";
 
+const SCHOLARSHIP_TYPE_LABELS: Record<string, string> = {
+  ACADEMICA:        "Académica",
+  EXCELENCIA:       "Excelencia",
+  DEPORTIVA:        "Deportiva",
+  CULTURAL:         "Cultural",
+  COMERCIAL:        "Comercial",
+  LIDERAZGO_SOCIAL: "Liderazgo Social",
+  SEP:              "SEP",
+};
+
 function EstatusBadge({ value }: { value: ReportRow["estatus"] }) {
   const styles: Record<ReportRow["estatus"], string> = {
-    "En Tiempo": "bg-tertiary-fixed text-on-tertiary-fixed",
-    "Atrasado":  "bg-error-container text-on-error-container",
-    "Sin Datos": "bg-surface-container-high text-on-surface-variant",
+    "En Tiempo":  "bg-tertiary-fixed text-on-tertiary-fixed",
+    "Atrasado":   "bg-error-container text-on-error-container",
+    "Sin Datos":  "bg-surface-container-high text-on-surface-variant",
+    "Voluntario": "bg-tertiary-fixed text-on-tertiary-fixed",
   };
   return (
     <span
@@ -78,10 +90,11 @@ export default function ReportesTable({ rows }: { rows: ReportRow[] }) {
     { key: "matricula",          label: "Matrícula" },
     { key: "careerName",         label: "Carrera" },
     { key: "faculty",            label: "Facultad" },
-    { key: "scholarshipPercent", label: "% Beca",      align: "center" },
-    { key: "targetHours",        label: "Meta",        align: "center" },
-    { key: "accumulatedHours",   label: "Acumuladas",  align: "center" },
-    { key: "progressPercent",    label: "% Completado",align: "center" },
+    { key: "scholarshipPercent", label: "% Beca",        align: "center" },
+    { key: "scholarshipType",    label: "Tipo de beca" },
+    { key: "targetHours",        label: "Meta",          align: "center" },
+    { key: "accumulatedHours",   label: "Acumuladas",    align: "center" },
+    { key: "progressPercent",    label: "% Completado",  align: "center" },
     { key: "estatus",            label: "Estatus" },
   ];
 
@@ -126,6 +139,9 @@ export default function ReportesTable({ rows }: { rows: ReportRow[] }) {
                 <td className="px-5 py-4 text-sm text-secondary">{r.faculty}</td>
                 <td className="px-5 py-4 text-center text-sm font-bold text-on-surface">
                   {r.scholarshipPercent}%
+                </td>
+                <td className="px-5 py-4 text-sm text-on-surface">
+                  {SCHOLARSHIP_TYPE_LABELS[r.scholarshipType] ?? r.scholarshipType}
                 </td>
                 <td className="px-5 py-4 text-center text-sm text-on-surface">{r.targetHours} h</td>
                 <td className="px-5 py-4 text-center text-sm font-bold text-on-surface">

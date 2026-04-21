@@ -22,10 +22,12 @@ export interface ReportRow {
   supervisorId:       string;
   supervisorName:     string;
   scholarshipPercent: number;
+  scholarshipType:    string;
   targetHours:        number;
   accumulatedHours:   number;
   progressPercent:    number;
-  estatus:            "En Tiempo" | "Atrasado" | "Sin Datos";
+  estatus:            "En Tiempo" | "Atrasado" | "Sin Datos" | "Voluntario";
+  isVoluntario:       boolean;
 }
 
 export interface ReportSummary {
@@ -34,16 +36,19 @@ export interface ReportSummary {
   enTiempoCount:       number;
   atrasadoCount:       number;
   sinDatosCount:       number;
+  voluntarioCount:     number;
   totalAccumulatedHrs: number;
 }
 
 export interface ReportFilters {
-  periodId?:     string;
-  careerId?:     string;
-  faculty?:      string;
-  supervisorId?: string;
-  minBeca?:      number;
-  maxBeca?:      number;
+  periodId?:        string;
+  careerId?:        string;
+  faculty?:         string;
+  supervisorId?:    string;
+  minBeca?:         number;
+  maxBeca?:         number;
+  scholarshipType?: string;
+  sinAvance?:       boolean;
 }
 
 export async function getReportFilterOptions(): Promise<ReportFilterOptions> {
@@ -102,8 +107,9 @@ export async function getReportData(
 
   const assignments = await db.assignment.findMany({
     where: {
-      periodId:     period.id,
-      supervisorId: filters.supervisorId || undefined,
+      periodId:           period.id,
+      supervisorId:       filters.supervisorId || undefined,
+      ...(filters.sinAvance ? { accumulatedMinutes: 0 } : {}),
       student: {
         studentProfile: {
           ...(filters.careerId ? { careerId: filters.careerId } : {}),
@@ -116,6 +122,7 @@ export async function getReportData(
                 },
               }
             : {}),
+          ...(filters.scholarshipType ? { scholarshipType: filters.scholarshipType as never } : {}),
         },
       },
     },
@@ -143,12 +150,15 @@ export async function getReportData(
         ? 0
         : Math.min(100, Math.round((accumulatedHours / a.targetHours) * 100));
 
+      const isVoluntario = profile.scholarshipType === "SEP";
+
       let estatus: ReportRow["estatus"];
       if (a.accumulatedMinutes === 0 && timeFrac < 0.1) {
         estatus = "Sin Datos";
       } else {
         const expectedHours = a.targetHours * timeFrac;
-        estatus = accumulatedHours >= expectedHours ? "En Tiempo" : "Atrasado";
+        const enTiempo = accumulatedHours >= expectedHours;
+        estatus = enTiempo ? "En Tiempo" : isVoluntario ? "Voluntario" : "Atrasado";
       }
 
       return {
@@ -162,10 +172,12 @@ export async function getReportData(
         supervisorId:       a.supervisorId,
         supervisorName:     a.supervisor.name,
         scholarshipPercent: profile.scholarshipPercent,
+        scholarshipType:    profile.scholarshipType,
         targetHours:        a.targetHours,
         accumulatedHours:   Math.round(accumulatedHours * 10) / 10,
         progressPercent,
         estatus,
+        isVoluntario,
       };
     });
 
@@ -176,6 +188,7 @@ export async function getReportData(
   const enTiempoCount       = rows.filter((r) => r.estatus === "En Tiempo").length;
   const atrasadoCount       = rows.filter((r) => r.estatus === "Atrasado").length;
   const sinDatosCount       = rows.filter((r) => r.estatus === "Sin Datos").length;
+  const voluntarioCount     = rows.filter((r) => r.estatus === "Voluntario").length;
   const totalAccumulatedHrs = Math.round(rows.reduce((s, r) => s + r.accumulatedHours, 0) * 10) / 10;
 
   return {
@@ -186,6 +199,7 @@ export async function getReportData(
       enTiempoCount,
       atrasadoCount,
       sinDatosCount,
+      voluntarioCount,
       totalAccumulatedHrs,
     },
     periodId: period.id,
@@ -199,6 +213,7 @@ function emptySummary(): ReportSummary {
     enTiempoCount:       0,
     atrasadoCount:       0,
     sinDatosCount:       0,
+    voluntarioCount:     0,
     totalAccumulatedHrs: 0,
   };
 }

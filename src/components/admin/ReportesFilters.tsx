@@ -15,21 +15,25 @@ export default function ReportesFilters({
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
 
-  const [periodId, setPeriodId]         = useState(currentPeriodId ?? "");
-  const [careerId, setCareerId]         = useState(searchParams.get("careerId") ?? "");
-  const [faculty, setFaculty]           = useState(searchParams.get("faculty") ?? "");
-  const [supervisorId, setSupervisorId] = useState(searchParams.get("supervisorId") ?? "");
-  const [minBeca, setMinBeca]           = useState(searchParams.get("minBeca") ?? "");
-  const [maxBeca, setMaxBeca]           = useState(searchParams.get("maxBeca") ?? "");
+  const [periodId, setPeriodId]               = useState(currentPeriodId ?? "");
+  const [careerId, setCareerId]               = useState(searchParams.get("careerId") ?? "");
+  const [faculty, setFaculty]                 = useState(searchParams.get("faculty") ?? "");
+  const [supervisorId, setSupervisorId]       = useState(searchParams.get("supervisorId") ?? "");
+  const [minBeca, setMinBeca]                 = useState(searchParams.get("minBeca") ?? "");
+  const [maxBeca, setMaxBeca]                 = useState(searchParams.get("maxBeca") ?? "");
+  const [scholarshipType, setScholarshipType] = useState(searchParams.get("scholarshipType") ?? "");
+  const [sinAvance, setSinAvance]             = useState(searchParams.get("sinAvance") === "1");
 
   function apply() {
     const params = new URLSearchParams();
-    if (periodId)     params.set("periodId", periodId);
-    if (careerId)     params.set("careerId", careerId);
-    if (faculty)      params.set("faculty", faculty);
-    if (supervisorId) params.set("supervisorId", supervisorId);
-    if (minBeca)      params.set("minBeca", minBeca);
-    if (maxBeca)      params.set("maxBeca", maxBeca);
+    if (periodId)      params.set("periodId", periodId);
+    if (careerId)      params.set("careerId", careerId);
+    if (faculty)       params.set("faculty", faculty);
+    if (supervisorId)  params.set("supervisorId", supervisorId);
+    if (minBeca)       params.set("minBeca", minBeca);
+    if (maxBeca)       params.set("maxBeca", maxBeca);
+    if (scholarshipType) params.set("scholarshipType", scholarshipType);
+    if (sinAvance)       params.set("sinAvance", "1");
     startTransition(() => {
       router.push(`/admin/reportes?${params.toString()}`);
     });
@@ -42,6 +46,8 @@ export default function ReportesFilters({
     setSupervisorId("");
     setMinBeca("");
     setMaxBeca("");
+    setScholarshipType("");
+    setSinAvance(false);
     startTransition(() => {
       router.push(`/admin/reportes`);
     });
@@ -54,7 +60,7 @@ export default function ReportesFilters({
 
   return (
     <section className="rounded-xl bg-surface-container-lowest p-6 shadow-card">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
         <div className="lg:col-span-1">
           <label className={labelClass}>Período</label>
           <select
@@ -119,6 +125,24 @@ export default function ReportesFilters({
           </select>
         </div>
 
+        <div className="lg:col-span-1">
+          <label className={labelClass}>Tipo de beca</label>
+          <select
+            value={scholarshipType}
+            onChange={(e) => setScholarshipType(e.target.value)}
+            className={selectClass}
+          >
+            <option value="">Todos</option>
+            <option value="ACADEMICA">Académica</option>
+            <option value="EXCELENCIA">Excelencia</option>
+            <option value="DEPORTIVA">Deportiva</option>
+            <option value="CULTURAL">Cultural</option>
+            <option value="COMERCIAL">Comercial</option>
+            <option value="LIDERAZGO_SOCIAL">Liderazgo Social</option>
+            <option value="SEP">SEP</option>
+          </select>
+        </div>
+
         <div className="lg:col-span-2">
           <label className={labelClass}>% Beca (rango)</label>
           <div className="flex items-center gap-2">
@@ -143,6 +167,33 @@ export default function ReportesFilters({
             />
           </div>
         </div>
+      </div>
+
+      <div className="mt-4">
+        <label className="inline-flex cursor-pointer items-center gap-3">
+          <div className="relative">
+            <input
+              type="checkbox"
+              className="sr-only"
+              checked={sinAvance}
+              onChange={(e) => setSinAvance(e.target.checked)}
+            />
+            <div
+              className={`h-5 w-9 rounded-full transition-colors ${sinAvance ? "bg-primary-container" : "bg-surface-container-high"}`}
+            />
+            <div
+              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${sinAvance ? "translate-x-4" : "translate-x-0.5"}`}
+            />
+          </div>
+          <span className="font-label text-sm font-semibold text-on-surface">
+            Solo alumnos sin avance (0%)
+          </span>
+          {sinAvance && (
+            <span className="rounded-full bg-error-container px-2 py-0.5 font-label text-[10px] font-black uppercase tracking-wider text-on-error-container">
+              Activo
+            </span>
+          )}
+        </label>
       </div>
 
       <div className="mt-5 flex items-center justify-end gap-3">

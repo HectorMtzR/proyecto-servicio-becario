@@ -154,6 +154,7 @@ export async function confirmImportAlumnos(
               semester:           r.semester,
               enrollmentYear:     r.enrollmentYear,
               scholarshipPercent: r.scholarshipPercent,
+              scholarshipType:    r.tipo_beca,
             },
           },
         },

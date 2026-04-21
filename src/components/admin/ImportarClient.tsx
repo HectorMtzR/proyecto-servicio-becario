@@ -33,10 +33,10 @@ interface PreviewState {
 
 const TEMPLATES: Record<ImportType, { headers: string[]; example: string[][] }> = {
   alumnos: {
-    headers: ["name", "email", "studentId", "careerName", "semester", "enrollmentYear", "scholarshipPercent"],
+    headers: ["name", "email", "studentId", "careerName", "semester", "enrollmentYear", "scholarshipPercent", "tipo_beca"],
     example: [
-      ["Juan Pérez Martínez", "juan.perez@anahuac.mx", "00123456", "Ingeniería en Sistemas", "5", "2023", "50"],
-      ["Ana García López",    "ana.garcia@anahuac.mx", "00123457", "Administración",         "3", "2024", "75"],
+      ["Juan Pérez Martínez", "juan.perez@anahuac.mx", "00123456", "Ingeniería en Sistemas", "5", "2023", "50", "ACADEMICA"],
+      ["Ana García López",    "ana.garcia@anahuac.mx", "00123457", "Administración",         "3", "2024", "75", "SEP"],
     ],
   },
   jefes: {

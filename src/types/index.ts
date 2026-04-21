@@ -1,7 +1,7 @@
-import type { Role, Status } from "@prisma/client";
+import type { Role, Status, ScholarshipType } from "@prisma/client";
 
 // Re-export Prisma enums for convenience
-export type { Role, Status };
+export type { Role, Status, ScholarshipType };
 
 // Extended session user type
 export interface SessionUser {

@@ -17,7 +17,9 @@ export interface AlumnoStatsData {
   thisMonthHours:     number;
   weeklyAverage:      number;
   remainingHours:     number;
-  estatus:            "En Tiempo" | "Atrasado" | "Sin Datos";
+  estatus:            "En Tiempo" | "Atrasado" | "Sin Datos" | "Voluntario";
+  scholarshipType:    string;
+  isVoluntario:       boolean;
 }
 
 export interface RecentSessionData {
@@ -44,11 +46,17 @@ export async function getAlumnoStats(): Promise<AlumnoStatsData | null> {
       isActive:  true,
       period:    { isClosed: false, isActive: true },
     },
-    include: { period: true },
+    include: {
+      period:  true,
+      student: { include: { studentProfile: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
   if (!assignment) return null;
+
+  const scholarshipType = assignment.student.studentProfile?.scholarshipType ?? "ACADEMICA";
+  const isVoluntario    = scholarshipType === "SEP";
 
   const now = new Date();
   const monthStart = startOfMonth(now);
@@ -87,6 +95,8 @@ export async function getAlumnoStats(): Promise<AlumnoStatsData | null> {
   let estatus: AlumnoStatsData["estatus"];
   if (assignment.accumulatedMinutes === 0 && weeksElapsed <= 1) {
     estatus = "Sin Datos";
+  } else if (isVoluntario) {
+    estatus = projected >= assignment.targetHours ? "En Tiempo" : "Voluntario";
   } else {
     estatus = projected >= assignment.targetHours ? "En Tiempo" : "Atrasado";
   }
@@ -99,6 +109,8 @@ export async function getAlumnoStats(): Promise<AlumnoStatsData | null> {
     weeklyAverage:      Math.round(weeklyAverage * 10) / 10,
     remainingHours:     Math.round(remainingHours * 10) / 10,
     estatus,
+    scholarshipType,
+    isVoluntario,
   };
 }
 

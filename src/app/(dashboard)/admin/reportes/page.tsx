@@ -6,12 +6,14 @@ import ReportesTable from "@/components/admin/ReportesTable";
 
 interface PageProps {
   searchParams: {
-    periodId?:     string;
-    careerId?:     string;
-    faculty?:      string;
-    supervisorId?: string;
-    minBeca?:      string;
-    maxBeca?:      string;
+    periodId?:        string;
+    careerId?:        string;
+    faculty?:         string;
+    supervisorId?:    string;
+    minBeca?:         string;
+    maxBeca?:         string;
+    scholarshipType?: string;
+    sinAvance?:       string;
   };
 }
 
@@ -30,12 +32,14 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
   const options = await getReportFilterOptions();
 
   const filters = {
-    periodId:     searchParams.periodId,
-    careerId:     searchParams.careerId,
-    faculty:      searchParams.faculty,
-    supervisorId: searchParams.supervisorId,
-    minBeca:      parseBeca(searchParams.minBeca),
-    maxBeca:      parseBeca(searchParams.maxBeca),
+    periodId:        searchParams.periodId,
+    careerId:        searchParams.careerId,
+    faculty:         searchParams.faculty,
+    supervisorId:    searchParams.supervisorId,
+    minBeca:         parseBeca(searchParams.minBeca),
+    maxBeca:         parseBeca(searchParams.maxBeca),
+    scholarshipType: searchParams.scholarshipType,
+    sinAvance:       searchParams.sinAvance === "1",
   };
 
   const { rows, summary, periodId } = await getReportData(filters);
@@ -70,7 +74,12 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
         <SummaryCard
           label="En Tiempo vs Atrasados"
           value={`${summary.enTiempoCount} / ${summary.atrasadoCount}`}
-          helper={summary.sinDatosCount > 0 ? `${summary.sinDatosCount} sin datos` : undefined}
+          helper={
+            [
+              summary.sinDatosCount > 0 ? `${summary.sinDatosCount} sin datos` : "",
+              summary.voluntarioCount > 0 ? `${summary.voluntarioCount} voluntario(s)` : "",
+            ].filter(Boolean).join(" · ") || undefined
+          }
           icon="balance"
         />
         <SummaryCard

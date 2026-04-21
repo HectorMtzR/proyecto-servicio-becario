@@ -19,6 +19,9 @@ const nombre = z
 const intCoerce = (min: number, max: number, msg: string) =>
   z.coerce.number({ error: msg }).int(msg).min(min, msg).max(max, msg);
 
+const SCHOLARSHIP_TYPES = ["ACADEMICA", "EXCELENCIA", "DEPORTIVA", "CULTURAL", "COMERCIAL", "LIDERAZGO_SOCIAL", "SEP"] as const;
+const SCHOLARSHIP_ERROR = "Tipo de beca inválido. Valores permitidos: ACADEMICA, EXCELENCIA, DEPORTIVA, CULTURAL, COMERCIAL, LIDERAZGO_SOCIAL, SEP";
+
 export const alumnoCsvRowSchema = z.object({
   name:               nombre,
   email:              emailInstitucional,
@@ -27,6 +30,13 @@ export const alumnoCsvRowSchema = z.object({
   semester:           intCoerce(1, 20, "Semestre debe estar entre 1 y 20"),
   enrollmentYear:     intCoerce(1990, 2100, "Año de ingreso inválido"),
   scholarshipPercent: intCoerce(1, 100, "% de beca debe estar entre 1 y 100"),
+  tipo_beca: z.preprocess(
+    (v) => {
+      if (v === undefined || v === null || (typeof v === "string" && !v.trim())) return "ACADEMICA";
+      return typeof v === "string" ? v.trim().toUpperCase() : "ACADEMICA";
+    },
+    z.enum(SCHOLARSHIP_TYPES, { error: SCHOLARSHIP_ERROR }),
+  ),
 });
 export type AlumnoCsvRow = z.infer<typeof alumnoCsvRowSchema>;
 
@@ -47,5 +57,5 @@ export type AsignacionCsvRow = z.infer<typeof asignacionCsvRowSchema>;
 export const importTypeSchema = z.enum(["alumnos", "jefes", "asignaciones"]);
 export type ImportType = z.infer<typeof importTypeSchema>;
 
-export const MAX_CSV_ROWS = 500;
+export const MAX_CSV_ROWS = 1000;
 export const DEFAULT_TEMP_PASSWORD = "Temporal123!";

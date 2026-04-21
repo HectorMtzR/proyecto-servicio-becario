@@ -3,9 +3,10 @@ import type { SupervisedStudentData } from "@/actions/validaciones";
 
 function EstatusBadge({ value }: { value: SupervisedStudentData["estatus"] }) {
   const styles: Record<SupervisedStudentData["estatus"], string> = {
-    "En Tiempo": "bg-tertiary-fixed text-on-tertiary-fixed",
-    "Atrasado":  "bg-error-container text-on-error-container",
-    "Sin Datos": "bg-surface-container-high text-on-surface-variant",
+    "En Tiempo":  "bg-tertiary-fixed text-on-tertiary-fixed",
+    "Atrasado":   "bg-error-container text-on-error-container",
+    "Sin Datos":  "bg-surface-container-high text-on-surface-variant",
+    "Voluntario": "bg-tertiary-fixed text-on-tertiary-fixed",
   };
   return (
     <span

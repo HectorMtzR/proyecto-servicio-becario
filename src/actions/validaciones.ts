@@ -30,7 +30,9 @@ export interface SupervisedStudentData {
   accumulatedHours:   number;
   progressPercent:    number;
   department:         string;
-  estatus:            "En Tiempo" | "Atrasado" | "Sin Datos";
+  estatus:            "En Tiempo" | "Atrasado" | "Sin Datos" | "Voluntario";
+  scholarshipType:    string;
+  isVoluntario:       boolean;
   pendingCount:       number;
 }
 
@@ -228,12 +230,16 @@ export async function getSupervisedStudents(): Promise<SupervisedStudentData[]> 
     const doneMs   = now.getTime() - a.period.startDate.getTime();
     const timeFrac = totalMs > 0 ? Math.max(0, Math.min(1, doneMs / totalMs)) : 0;
 
+    const scholarshipType = profile?.scholarshipType ?? "ACADEMICA";
+    const isVoluntario    = scholarshipType === "SEP";
+
     let estatus: SupervisedStudentData["estatus"];
     if (a.accumulatedMinutes === 0 && timeFrac < 0.1) {
       estatus = "Sin Datos";
     } else {
       const expectedHours = a.targetHours * timeFrac;
-      estatus = accumulatedHours >= expectedHours ? "En Tiempo" : "Atrasado";
+      const enTiempo = accumulatedHours >= expectedHours;
+      estatus = enTiempo ? "En Tiempo" : isVoluntario ? "Voluntario" : "Atrasado";
     }
 
     return {
@@ -249,6 +255,8 @@ export async function getSupervisedStudents(): Promise<SupervisedStudentData[]> 
       progressPercent,
       department:         a.department,
       estatus,
+      scholarshipType,
+      isVoluntario,
       pendingCount:       a._count.workSessions,
     };
   });
