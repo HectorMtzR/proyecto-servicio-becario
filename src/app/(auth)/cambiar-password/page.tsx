@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import ChangePasswordForm from "./ChangePasswordForm";
-import { logoutAction } from "@/actions/auth";
+import LogoutButton from "@/components/shared/LogoutButton";
 
 export default async function CambiarPasswordPage() {
   const session = await auth();
@@ -35,14 +35,11 @@ export default async function CambiarPasswordPage() {
           <ChangePasswordForm mustChangePassword={session.user.mustChangePassword} />
 
           {/* Cerrar sesión */}
-          <form action={logoutAction} className="mt-6 text-center">
-            <button
-              type="submit"
-              className="text-xs font-label text-secondary hover:text-on-surface transition-colors"
-            >
+          <div className="mt-6 text-center">
+            <LogoutButton className="text-xs font-label text-secondary hover:text-on-surface transition-colors">
               Cerrar sesión
-            </button>
-          </form>
+            </LogoutButton>
+          </div>
 
         </div>
       </div>

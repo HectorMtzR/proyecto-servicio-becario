@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Role } from "@prisma/client";
-import { logoutAction } from "@/actions/auth";
 import { useUIStore } from "@/stores/ui-store";
+import LogoutButton from "@/components/shared/LogoutButton";
 
 type NavItem = {
   href:  string;
@@ -109,15 +109,10 @@ export default function Sidebar({ role }: { role: Role }) {
           Ayuda
         </Link>
 
-        <form action={logoutAction}>
-          <button
-            type="submit"
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-headline text-sm tracking-tight text-zinc-400 transition-colors hover:text-white"
-          >
-            <span className="material-symbols-outlined">logout</span>
-            Cerrar sesión
-          </button>
-        </form>
+        <LogoutButton className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-headline text-sm tracking-tight text-zinc-400 transition-colors hover:text-white">
+          <span className="material-symbols-outlined">logout</span>
+          Cerrar sesión
+        </LogoutButton>
       </div>
     </aside>
   );
