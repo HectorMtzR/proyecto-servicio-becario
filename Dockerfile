@@ -57,7 +57,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma           ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma  ./node_modules/prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+
+# Recrear el symlink de la CLI de Prisma en node_modules/.bin (Docker COPY
+# dereferencia symlinks, lo que rompe la resolución de archivos .wasm
+# adyacentes al script real en node_modules/prisma/build/).
+RUN mkdir -p ./node_modules/.bin \
+  && ln -sf ../prisma/build/index.js ./node_modules/.bin/prisma \
+  && chown -h nextjs:nodejs ./node_modules/.bin ./node_modules/.bin/prisma
 
 USER nextjs
 
