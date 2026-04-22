@@ -39,6 +39,23 @@ export default function ReportesFilters({
     });
   }
 
+  function buildQuery() {
+    const params = new URLSearchParams();
+    if (periodId)        params.set("periodId", periodId);
+    if (careerId)        params.set("careerId", careerId);
+    if (faculty)         params.set("faculty", faculty);
+    if (supervisorId)    params.set("supervisorId", supervisorId);
+    if (minBeca)         params.set("minBeca", minBeca);
+    if (maxBeca)         params.set("maxBeca", maxBeca);
+    if (scholarshipType) params.set("scholarshipType", scholarshipType);
+    if (sinAvance)       params.set("sinAvance", "1");
+    return params.toString();
+  }
+
+  function exportar() {
+    window.location.href = `/api/export/reportes?${buildQuery()}`;
+  }
+
   function reset() {
     setPeriodId(options.activePeriodId ?? "");
     setCareerId("");
@@ -197,6 +214,14 @@ export default function ReportesFilters({
       </div>
 
       <div className="mt-5 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={exportar}
+          className="inline-flex items-center gap-2 rounded-lg bg-surface-container-high px-4 py-2 font-label text-sm font-bold text-on-surface transition-colors hover:bg-surface-variant"
+        >
+          <span className="material-symbols-outlined text-[18px]">download</span>
+          Exportar a Excel
+        </button>
         <button
           type="button"
           onClick={reset}

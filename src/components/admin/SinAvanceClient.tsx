@@ -103,9 +103,8 @@ export default function SinAvanceClient({
       <div className="flex justify-end">
         <button
           type="button"
-          disabled
-          title="Disponible en Fase 5"
-          className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl bg-surface-container-high px-5 py-3 text-sm font-bold text-secondary opacity-50"
+          onClick={() => { window.location.href = "/api/export/sin-avance"; }}
+          className="inline-flex items-center gap-2 rounded-xl bg-primary-container px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-orange-200/50 transition-all hover:-translate-y-0.5"
         >
           <span className="material-symbols-outlined text-[18px]">download</span>
           Exportar a Excel

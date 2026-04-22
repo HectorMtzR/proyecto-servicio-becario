@@ -56,6 +56,18 @@ export default async function JefeAlumnosPage() {
           </div>
         </div>
 
+        {students.length > 0 && (
+          <div className="flex justify-end">
+            <a
+              href="/api/export/jefe-alumnos"
+              className="inline-flex items-center gap-2 rounded-lg bg-surface-container-high px-4 py-2 font-label text-sm font-bold text-on-surface transition-colors hover:bg-surface-variant"
+            >
+              <span className="material-symbols-outlined text-[18px]">download</span>
+              Exportar mis alumnos
+            </a>
+          </div>
+        )}
+
         <StudentsTable students={students} />
 
         {sinAvance.length > 0 && (

@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 export interface StudentNoProgressData {
   assignmentId:   string;
   studentName:    string;
+  studentEmail:   string;
   matricula:      string;
   careerName:     string;
   supervisorName: string;
@@ -53,6 +54,7 @@ export async function getStudentsWithNoProgress(
       return {
         assignmentId:   a.id,
         studentName:    a.student.name,
+        studentEmail:   a.student.email,
         matricula:      profile.studentId,
         careerName:     profile.career.name,
         supervisorName: a.supervisor.name,

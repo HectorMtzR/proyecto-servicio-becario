@@ -22,6 +22,7 @@ export interface SupervisedStudentData {
   assignmentId:       string;
   studentId:          string;
   studentName:        string;
+  studentEmail:       string;
   studentMatricula:   string;
   career:             string;
   faculty:            string;
@@ -246,6 +247,7 @@ export async function getSupervisedStudents(): Promise<SupervisedStudentData[]> 
       assignmentId:       a.id,
       studentId:          a.studentId,
       studentName:        a.student.name,
+      studentEmail:       a.student.email,
       studentMatricula:   profile?.studentId ?? "—",
       career:             profile?.career.name ?? "—",
       faculty:            profile?.career.faculty ?? "—",

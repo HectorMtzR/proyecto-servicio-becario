@@ -15,6 +15,7 @@ export interface ReportRow {
   assignmentId:       string;
   studentId:          string;
   studentName:        string;
+  studentEmail:       string;
   matricula:          string;
   careerId:           string;
   careerName:         string;
@@ -165,6 +166,7 @@ export async function getReportData(
         assignmentId:       a.id,
         studentId:          a.studentId,
         studentName:        a.student.name,
+        studentEmail:       a.student.email,
         matricula:          profile.studentId,
         careerId:           profile.careerId,
         careerName:         profile.career.name,

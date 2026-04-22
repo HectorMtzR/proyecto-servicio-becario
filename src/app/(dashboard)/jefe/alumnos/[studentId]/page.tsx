@@ -37,12 +37,23 @@ export default async function JefeAlumnoDetallePage({
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             Volver a mis alumnos
           </Link>
-          <h1 className="font-headline text-3xl font-black tracking-tight text-on-surface">
-            {student.name}
-          </h1>
-          <p className="mt-1 font-label text-xs font-medium uppercase tracking-widest text-secondary">
-            {student.matricula} · {student.career} · {student.faculty}
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="font-headline text-3xl font-black tracking-tight text-on-surface">
+                {student.name}
+              </h1>
+              <p className="mt-1 font-label text-xs font-medium uppercase tracking-widest text-secondary">
+                {student.matricula} · {student.career} · {student.faculty}
+              </p>
+            </div>
+            <a
+              href={`/api/export/historial-jornadas?studentId=${student.id}`}
+              className="inline-flex items-center gap-2 rounded-lg bg-surface-container-high px-4 py-2 font-label text-sm font-bold text-on-surface transition-colors hover:bg-surface-variant"
+            >
+              <span className="material-symbols-outlined text-[18px]">download</span>
+              Exportar historial
+            </a>
+          </div>
         </div>
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-4">
