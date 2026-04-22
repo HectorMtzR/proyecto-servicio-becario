@@ -1,0 +1,13 @@
+# Configuración inicial: solo HTTP en el puerto 80 contra la IP pública.
+# Cuando tengas un dominio (ej: DuckDNS), reemplaza ":80" por el nombre
+# de dominio y Caddy pedirá un certificado Let's Encrypt automáticamente.
+:80 {
+    encode gzip
+
+    reverse_proxy app:3000 {
+        header_up Host              {host}
+        header_up X-Real-IP         {remote_host}
+        header_up X-Forwarded-For   {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}
