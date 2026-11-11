@@ -4,8 +4,8 @@
 
 Sistema web para gestión de servicio becario universitario. Los alumnos registran jornadas de trabajo con un cronómetro (o registro manual), los jefes validan esas jornadas, y los administradores gestionan usuarios, asignaciones, períodos y reportes.
 
-- **Framework:** Next.js 14 (App Router) + TypeScript (modo estricto)
-- **Runtime:** Node.js 20 LTS
+- **Framework:** Next.js 16 (App Router, Turbopack) + React 19 + TypeScript (modo estricto)
+- **Runtime:** Node.js 22 LTS
 - **UI:** Tailwind CSS + shadcn/ui + Material Symbols Outlined (iconos)
 - **DB:** PostgreSQL 16 (local en desarrollo, cloud en producción)
 - **ORM:** Prisma con `prisma/seed.ts` para datos de desarrollo

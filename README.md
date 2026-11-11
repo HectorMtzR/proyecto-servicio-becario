@@ -62,8 +62,8 @@ Académica, Excelencia, Deportiva, Cultural, Comercial, Liderazgo Social y **SEP
 
 | Capa | Tecnología |
 |---|---|
-| Framework | Next.js 14 (App Router, `output: "standalone"`) + TypeScript estricto |
-| Runtime | Node.js 20 LTS |
+| Framework | Next.js 16 (App Router, Turbopack, `output: "standalone"`) + React 19 + TypeScript estricto |
+| Runtime | Node.js 22 LTS (mínimo 20.9) |
 | UI | Tailwind CSS, Radix UI / shadcn, Material Symbols Outlined |
 | Base de datos | PostgreSQL 16 |
 | ORM | Prisma 5 |
@@ -72,7 +72,7 @@ Académica, Excelencia, Deportiva, Cultural, Comercial, Liderazgo Social y **SEP
 | Formularios | react-hook-form |
 | Estado cliente | Zustand (solo UI y cronómetro) |
 | Notificaciones | sonner |
-| Archivos | papaparse (CSV de entrada), xlsx (Excel de salida) |
+| Archivos | papaparse (CSV de entrada), exceljs (Excel de salida) |
 
 ---
 
@@ -86,7 +86,7 @@ Navegador
    │
    ▼
 Next.js (server.js standalone, puerto 3000)
-   ├── Middleware ........ Auth.js: sesión, rol, cambio de contraseña obligatorio
+   ├── Proxy ............. Auth.js: sesión, rol, cambio de contraseña obligatorio
    ├── Server Components . lectura de datos
    ├── Server Actions .... escritura con validación Zod   (src/actions/)
    └── Route Handlers .... /api/auth, /api/export/* (Excel)
@@ -97,7 +97,7 @@ PostgreSQL (Prisma)
 
 - **Monolito**: no hay backend separado. Toda la lógica de negocio vive en `src/actions/` como Server Actions, que regresan `{ success, error?, data? }`.
 - **La autenticación se divide en dos archivos**:
-  - `src/lib/auth.config.ts` no usa Prisma y puede ejecutarse en edge; lo usa el middleware.
+  - `src/lib/auth.config.ts` no usa Prisma; lo usa el proxy (`src/proxy.ts`).
   - `src/lib/auth.ts` agrega el proveedor Credentials con acceso a la base de datos.
 - **Zona horaria**: las fechas de negocio se interpretan en `America/Mexico_City`. En producción se fija con la variable `TZ`, que ya viene definida en el `Dockerfile`.
 - **No hay dependencias de red escritas en el código**: la base de datos y la URL pública se configuran solo por variables de entorno.
@@ -120,7 +120,7 @@ PostgreSQL (Prisma)
 │   ├── components/          # admin/, jefe/, cronometro/, layout/, shared/
 │   ├── lib/                 # db, auth, utilidades, validaciones Zod
 │   ├── stores/              # Zustand
-│   └── middleware.ts        # Protección de rutas
+│   └── proxy.ts             # Protección de rutas (antes middleware.ts)
 ├── docs/design/             # Mockups y design system "Academic Curator"
 ├── Dockerfile               # Imagen multi-stage (deps → builder → runner)
 ├── docker-compose.yml       # db + app + caddy (+ seed opcional) para VPS
@@ -132,7 +132,7 @@ PostgreSQL (Prisma)
 
 ## Desarrollo local
 
-Requisitos: **Node.js 20+** y **PostgreSQL 16+**, ya sea instalado localmente o en Docker. Los comandos están escritos para PowerShell.
+Requisitos: **Node.js 22 LTS** (mínimo 20.9) y **PostgreSQL 16+**, ya sea instalado localmente o en Docker. Los comandos están escritos para PowerShell.
 
 ```powershell
 # 1. Dependencias
@@ -243,11 +243,12 @@ En el servicio de la app, ve a **Variables** y agrega:
 ### Paso 4: Cargar datos de demostración
 El seed se ejecuta **desde tu máquina** contra la URL pública de la base de datos:
 
-1. En el servicio **Postgres → Variables**, copia el valor de `DATABASE_PUBLIC_URL`. Tiene la forma `postgresql://postgres:...@xxxx.proxy.rlwy.net:NNNNN/railway`.
-2. En PowerShell, desde la carpeta del proyecto (con `npm install` ya hecho):
+1. En el servicio **Postgres → Variables**, copia el valor **resuelto** de `DATABASE_PUBLIC_URL` con el ícono del ojo o el de copiar. Debe verse así: `postgresql://postgres:CONTRASEÑA@xxxx.proxy.rlwy.net:NNNNN/railway`.
+   > ⚠️ No copies la plantilla `postgresql://${{PGUSER}}:${{PGPASSWORD}}@...`. Si la armas a mano, quita todas las llaves `${{ }}`.
+2. En PowerShell, desde la carpeta del proyecto (con `npm install` ya hecho). Usa **comillas simples** para que PowerShell no interprete `$` ni `{}` dentro de la URL:
 
 ```powershell
-$env:DATABASE_URL = "PEGA_AQUI_DATABASE_PUBLIC_URL"
+$env:DATABASE_URL = 'PEGA_AQUI_DATABASE_PUBLIC_URL'
 npx prisma db push --skip-generate   # idempotente; asegura que las tablas existan
 npm run db:seed
 Remove-Item Env:DATABASE_URL          # limpia la variable de la sesión
@@ -307,6 +308,7 @@ Para tener HTTPS, apunta un dominio a la IP de la VM y reemplaza `:80` en el `Ca
 
 ## Pendientes conocidos
 
-- **Dependencias con vulnerabilidades reportadas** por `npm audit` (`next` 14.2.x, `@auth/core`, `xlsx`, `zod`). Hay que actualizarlas antes de cualquier uso con datos reales. El paquete `xlsx` de npm ya no recibe parches; conviene migrar a `exceljs` o a la distribución oficial de SheetJS.
+- `npm run lint` (ESLint 9) reporta 5 errores de la regla `react-hooks/set-state-in-effect`, que llegó con las nuevas reglas de React. No afectan el funcionamiento ni bloquean el build; conviene refactorizar esos efectos más adelante.
+- `next-auth` v5 sigue en beta (`5.0.0-beta.32`).
 - No hay pruebas automatizadas.
 - La zona horaria depende de la variable `TZ` del servidor. Para plataformas que no permiten definirla (p. ej. Vercel), habría que manejar `America/Mexico_City` explícitamente en el código.
