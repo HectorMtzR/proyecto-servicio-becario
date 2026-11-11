@@ -20,7 +20,7 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-surface">
       <Sidebar role={role} />
       <TopBar name={name ?? "Usuario"} role={role} />
-      <main className="ml-64 min-h-screen pt-16">{children}</main>
+      <main className="min-h-screen pt-16 lg:ml-64">{children}</main>
       {role === "ALUMNO" && (
         <RegistroManualLauncher hasAssignment={assignment !== null} />
       )}

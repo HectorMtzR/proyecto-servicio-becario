@@ -13,7 +13,7 @@ export default async function AdminSinAvancePage() {
   const students = await getStudentsWithNoProgress("ADMIN");
 
   return (
-    <main className="space-y-6 p-8">
+    <main className="space-y-6 p-4 sm:p-8">
       <header>
         <p className="font-label text-[11px] font-bold uppercase tracking-widest text-secondary">
           Panel de administración

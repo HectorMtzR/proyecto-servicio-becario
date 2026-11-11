@@ -18,9 +18,9 @@ export default async function AlumnoJornadasPage() {
   ]);
 
   return (
-    <div className="px-8 pb-12 pt-8">
+    <div className="px-4 pb-12 pt-6 sm:px-8 sm:pt-8">
       <div className="mx-auto max-w-6xl space-y-8">
-        <div className="grid grid-cols-12 gap-8">
+        <div className="grid grid-cols-12 gap-4 sm:gap-8">
           <Cronometro
             initialActive={activeSession}
             hasAssignment={assignment !== null}

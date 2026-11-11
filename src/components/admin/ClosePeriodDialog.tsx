@@ -33,7 +33,7 @@ export default function ClosePeriodDialog({
       onClick={() => !isPending && onCancel()}
     >
       <div
-        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl bg-surface-container-lowest p-8 shadow-card-hover"
+        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl bg-surface-container-lowest p-5 sm:p-8 shadow-card-hover"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-2 font-headline text-xl font-black tracking-tight text-on-surface">

@@ -49,7 +49,7 @@ export default async function AlumnoInicioPage() {
     : 0;
 
   return (
-    <section className="space-y-8 p-8">
+    <section className="space-y-6 p-4 sm:space-y-8 sm:p-8">
       <WelcomeHeader name={session.user.name ?? "Alumno"} />
 
       <div>

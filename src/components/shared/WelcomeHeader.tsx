@@ -58,7 +58,7 @@ export default function WelcomeHeader({ name }: { name: string }) {
   const greeting = now ? getGreeting(now.getHours()) : "Hola";
 
   return (
-    <div className="flex flex-col gap-6 rounded-xl bg-zinc-900 p-8 text-white shadow-[0_4px_32px_rgba(25,28,29,0.12)] md:flex-row md:items-end md:justify-between">
+    <div className="flex flex-col gap-6 rounded-xl bg-zinc-900 p-6 text-white sm:p-8 shadow-[0_4px_32px_rgba(25,28,29,0.12)] md:flex-row md:items-end md:justify-between">
       <div>
         <span className="font-label text-[11px] font-bold uppercase tracking-widest text-zinc-400">
           {greeting}

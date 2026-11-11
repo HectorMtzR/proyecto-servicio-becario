@@ -18,7 +18,7 @@ export default function RegistroManualLauncher({
         type="button"
         onClick={openIt}
         aria-label="Registrar jornada manual"
-        className="fixed bottom-8 right-8 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary-container text-on-primary-container shadow-fab transition-all hover:scale-110 active:scale-95"
+        className="fixed bottom-5 right-5 sm:bottom-8 sm:right-8 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary-container text-on-primary-container shadow-fab transition-all hover:scale-110 active:scale-95"
       >
         <span
           className="material-symbols-outlined"

@@ -7,7 +7,7 @@ export default async function JefeValidacionesPage() {
   const pending = await getPendingValidations();
 
   return (
-    <div className="px-8 pb-12 pt-8">
+    <div className="px-4 pb-12 pt-6 sm:px-8 sm:pt-8">
       <div className="mx-auto max-w-5xl space-y-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>

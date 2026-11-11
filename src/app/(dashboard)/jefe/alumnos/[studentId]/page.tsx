@@ -28,7 +28,7 @@ export default async function JefeAlumnoDetallePage({
   const { student, assignment, sessions } = detail;
 
   return (
-    <div className="px-8 pb-12 pt-8">
+    <div className="px-4 pb-12 pt-6 sm:px-8 sm:pt-8">
       <div className="mx-auto max-w-6xl space-y-6">
         <div>
           <Link

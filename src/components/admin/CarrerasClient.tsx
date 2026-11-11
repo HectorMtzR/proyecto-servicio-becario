@@ -44,7 +44,7 @@ export default function CarrerasClient({ careers }: Props) {
   const blocked = confirm ? confirm.studentCount > 0 : false;
 
   return (
-    <section className="space-y-6 p-8">
+    <section className="space-y-6 p-4 sm:p-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-headline text-2xl font-black tracking-tight text-on-surface">

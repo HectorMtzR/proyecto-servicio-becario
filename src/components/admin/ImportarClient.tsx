@@ -238,7 +238,7 @@ export default function ImportarClient() {
   const columns = preview ? TEMPLATES[preview.type].headers : [];
 
   return (
-    <section className="space-y-6 p-8">
+    <section className="space-y-6 p-4 sm:p-8">
       <div>
         <h1 className="font-headline text-2xl font-black tracking-tight text-on-surface">
           Importación masiva por CSV

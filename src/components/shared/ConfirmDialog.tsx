@@ -36,7 +36,7 @@ export default function ConfirmDialog({
       onClick={() => !isPending && onCancel()}
     >
       <div
-        className="w-full max-w-md rounded-xl bg-surface-container-lowest p-8 shadow-card-hover"
+        className="w-full max-w-md rounded-xl bg-surface-container-lowest p-5 sm:p-8 shadow-card-hover"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-2 font-headline text-xl font-black tracking-tight text-on-surface">

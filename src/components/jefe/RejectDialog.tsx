@@ -49,7 +49,7 @@ export default function RejectDialog({ open, onClose, sessionId, studentName }: 
       onClick={handleClose}
     >
       <div
-        className="w-full max-w-lg rounded-xl bg-surface-container-lowest p-8 shadow-card-hover"
+        className="w-full max-w-lg rounded-xl bg-surface-container-lowest p-5 sm:p-8 shadow-card-hover"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-2 font-headline text-2xl font-black tracking-tight text-on-surface">

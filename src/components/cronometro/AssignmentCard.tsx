@@ -7,7 +7,7 @@ export default function AssignmentCard({
 }) {
   if (!assignment) {
     return (
-      <section className="col-span-12 flex flex-col justify-between rounded-xl bg-zinc-900 p-8 text-white shadow-card lg:col-span-4">
+      <section className="col-span-12 flex flex-col justify-between rounded-xl bg-zinc-900 p-6 text-white shadow-card sm:p-8 lg:col-span-4">
         <div>
           <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
             <span className="material-symbols-outlined text-orange-400">
@@ -31,7 +31,7 @@ export default function AssignmentCard({
   }
 
   return (
-    <section className="col-span-12 flex flex-col justify-between rounded-xl bg-zinc-900 p-8 text-white shadow-card lg:col-span-4">
+    <section className="col-span-12 flex flex-col justify-between rounded-xl bg-zinc-900 p-6 text-white shadow-card sm:p-8 lg:col-span-4">
       <div>
         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
           <span className="material-symbols-outlined text-orange-400">

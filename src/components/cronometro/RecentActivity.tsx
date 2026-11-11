@@ -41,41 +41,50 @@ export default function RecentActivity({
 
   return (
     <section className="col-span-12 overflow-hidden rounded-xl bg-surface-container-lowest shadow-card">
-      <div className="flex items-center justify-between p-8 pb-6">
+      <div className="flex items-center justify-between p-4 pb-4 sm:p-8 sm:pb-6">
         <h3 className="font-headline text-xl font-black tracking-tight text-on-surface">
           {title}
         </h3>
       </div>
 
       {sessions.length === 0 ? (
-        <div className="px-8 pb-8 text-sm text-secondary">{emptyMessage}</div>
+        <div className="px-4 pb-6 sm:px-8 sm:pb-8 text-sm text-secondary">{emptyMessage}</div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-surface-container-low/50">
-                <th className="px-8 py-4 font-label text-xs font-bold uppercase tracking-widest text-secondary">
+                <th className="px-4 sm:px-8 py-4 font-label text-xs font-bold uppercase tracking-widest text-secondary">
                   Fecha
                 </th>
-                <th className="px-8 py-4 font-label text-xs font-bold uppercase tracking-widest text-secondary">
+                <th className="hidden px-4 py-4 font-label text-xs font-bold uppercase tracking-widest text-secondary sm:table-cell sm:px-8">
                   Jefe de Servicio
                 </th>
-                <th className="px-8 py-4 text-center font-label text-xs font-bold uppercase tracking-widest text-secondary">
+                <th className="px-4 sm:px-8 py-4 text-center font-label text-xs font-bold uppercase tracking-widest text-secondary">
                   Horas
                 </th>
-                <th className="px-8 py-4 font-label text-xs font-bold uppercase tracking-widest text-secondary">
+                <th className="px-4 sm:px-8 py-4 font-label text-xs font-bold uppercase tracking-widest text-secondary">
                   Estado
                 </th>
-                <th className="px-8 py-4 text-right font-label text-xs font-bold uppercase tracking-widest text-secondary" />
+                <th className="px-4 sm:px-8 py-4 text-right font-label text-xs font-bold uppercase tracking-widest text-secondary" />
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-50">
               {sessions.map((s) => (
                 <tr key={s.id} className="transition-colors hover:bg-surface-bright">
-                  <td className="px-8 py-5 text-sm font-medium text-on-surface">
+                  <td className="whitespace-nowrap px-4 sm:px-8 py-5 text-sm font-medium text-on-surface">
                     {format(new Date(s.date), "d MMM, yyyy", { locale: es })}
+                    {s.isManual && (
+                      // En móvil la columna del jefe se oculta; el indicador de registro manual se muestra aquí
+                      <span
+                        className="material-symbols-outlined ml-1 align-middle text-[14px] text-secondary sm:hidden"
+                        title="Registro manual"
+                      >
+                        edit_note
+                      </span>
+                    )}
                   </td>
-                  <td className="px-8 py-5 text-sm text-secondary">
+                  <td className="hidden px-4 py-5 text-sm text-secondary sm:table-cell sm:px-8">
                     {s.supervisorName}
                     {s.isManual && (
                       <span
@@ -86,13 +95,13 @@ export default function RecentActivity({
                       </span>
                     )}
                   </td>
-                  <td className="px-8 py-5 text-center text-sm font-bold text-on-surface">
+                  <td className="px-4 sm:px-8 py-5 text-center text-sm font-bold text-on-surface">
                     {s.hours > 0 ? s.hours.toFixed(1) : "—"}
                   </td>
-                  <td className="px-8 py-5">
+                  <td className="px-4 sm:px-8 py-5">
                     <StatusChip status={s.status} />
                   </td>
-                  <td className="relative px-8 py-5 text-right">
+                  <td className="relative px-4 sm:px-8 py-5 text-right">
                     {s.canCancel ? (
                       <>
                         <button
@@ -134,7 +143,7 @@ export default function RecentActivity({
       )}
 
       {showHistoryLink && sessions.length > 0 && (
-        <div className="flex justify-end bg-surface-container-low/40 px-8 py-4">
+        <div className="flex justify-end bg-surface-container-low/40 px-4 sm:px-8 py-4">
           <Link
             href="/alumno/historial"
             className="inline-flex items-center gap-1 font-label text-sm font-bold text-primary transition-colors hover:text-primary-container"

@@ -2,7 +2,7 @@ import { Skeleton, SkeletonCard, SkeletonTable } from "@/components/shared/Skele
 
 export default function Loading() {
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <Skeleton className="mb-6 h-10 w-64" />
       <SkeletonCard className="mb-6 h-32" />
       <SkeletonTable rows={8} />

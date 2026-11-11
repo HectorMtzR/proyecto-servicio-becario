@@ -108,18 +108,18 @@ export default function Cronometro({ initialActive, hasAssignment }: CronometroP
 
   return (
     <>
-      <section className="relative col-span-12 flex flex-col items-center justify-center overflow-hidden rounded-xl bg-surface-container-lowest p-8 text-center shadow-card lg:col-span-8">
+      <section className="relative col-span-12 flex flex-col items-center justify-center overflow-hidden rounded-xl bg-surface-container-lowest p-6 text-center shadow-card sm:p-8 lg:col-span-8">
         <div className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-primary to-orange-400" />
 
         <span className="mb-4 font-label text-xs font-bold uppercase tracking-[0.2em] text-secondary">
           {isActive ? "Jornada Activa" : "Cronómetro listo"}
         </span>
 
-        <div className="mb-8 flex items-baseline gap-4">
-          <span className="font-headline text-8xl font-black tracking-tighter text-on-surface tabular-nums">
+        <div className="mb-8 flex items-baseline gap-2 sm:gap-4">
+          <span className="font-headline text-6xl font-black sm:text-8xl tracking-tighter text-on-surface tabular-nums">
             {hm}
           </span>
-          <span className="font-headline text-3xl font-bold text-primary tabular-nums">
+          <span className="font-headline text-2xl font-bold text-primary tabular-nums sm:text-3xl">
             {ss}
           </span>
         </div>
@@ -160,7 +160,7 @@ export default function Cronometro({ initialActive, hasAssignment }: CronometroP
           onClick={() => !isPending && setShowModal(false)}
         >
           <div
-            className="w-full max-w-lg rounded-xl bg-surface-container-lowest p-8 shadow-card-hover"
+            className="w-full max-w-lg rounded-xl bg-surface-container-lowest p-5 sm:p-8 shadow-card-hover"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="mb-2 font-headline text-2xl font-black tracking-tight text-on-surface">

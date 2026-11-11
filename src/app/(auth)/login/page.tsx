@@ -28,10 +28,10 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-surface px-4">
+    <main className="min-h-screen flex items-center justify-center bg-surface px-4 py-8">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="bg-surface-container-lowest rounded-2xl shadow-card p-10">
+        <div className="bg-surface-container-lowest rounded-2xl shadow-card p-6 sm:p-10">
 
           {/* Marca */}
           <div className="mb-8">

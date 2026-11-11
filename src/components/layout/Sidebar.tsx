@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Role } from "@prisma/client";
@@ -36,84 +37,135 @@ const navByRole: Record<Role, NavItem[]> = {
   ],
 };
 
+const secondaryLinkClass =
+  "flex items-center gap-3 rounded-xl px-4 py-3 font-headline text-sm tracking-tight text-zinc-400 transition-colors hover:text-white";
+
+/**
+ * Navegación lateral.
+ * - Escritorio (lg+): fija a la izquierda, siempre visible.
+ * - Móvil/tablet (< lg): panel deslizable que se abre desde el botón de menú
+ *   del TopBar; se cierra al navegar, al tocar el fondo o con Escape.
+ */
 export default function Sidebar({ role }: { role: Role }) {
-  const pathname = usePathname();
-  const items = navByRole[role];
+  const pathname           = usePathname();
+  const items              = navByRole[role];
   const openRegistroManual = useUIStore((s) => s.openRegistroManual);
+  const sidebarOpen        = useUIStore((s) => s.sidebarOpen);
+  const closeSidebar       = useUIStore((s) => s.closeSidebar);
+
+  // Cerrar con Escape mientras el panel está abierto
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeSidebar();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [sidebarOpen, closeSidebar]);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  const handleRegistroManual = () => {
+    closeSidebar();
+    openRegistroManual();
+  };
+
   return (
-    <aside className="fixed left-0 top-0 z-50 flex h-screen w-64 flex-col bg-zinc-900 px-4 py-6">
-      <div className="mb-10 px-2">
-        <div className="font-headline text-xl font-bold tracking-tighter text-white">
-          Portal Becario
-        </div>
-        <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-          Anáhuac · Servicio Becario
-        </div>
-      </div>
+    <>
+      {/* Fondo oscuro detrás del panel (solo móvil) */}
+      <div
+        aria-hidden="true"
+        onClick={closeSidebar}
+        className={
+          "fixed inset-0 z-[45] bg-zinc-900/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden " +
+          (sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0")
+        }
+      />
 
-      <nav className="flex-1 space-y-1">
-        {items.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={
-                active
-                  ? "flex items-center gap-3 rounded-xl border-r-4 border-orange-500 bg-white/5 px-4 py-3 font-headline text-sm font-bold tracking-tight text-white transition-all"
-                  : "flex items-center gap-3 rounded-xl px-4 py-3 font-headline text-sm tracking-tight text-zinc-400 transition-all duration-200 hover:bg-zinc-800/50 hover:text-white"
-              }
-            >
-              <span
-                className="material-symbols-outlined"
-                style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
-              >
-                {item.icon}
-              </span>
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="mt-auto space-y-1 pt-6">
-        {role === "ALUMNO" && (
+      <aside
+        id="app-sidebar"
+        aria-label="Navegación principal"
+        className={
+          "fixed left-0 top-0 z-50 flex h-[100dvh] w-64 flex-col overflow-y-auto bg-zinc-900 px-4 py-6 transition-transform duration-300 ease-out lg:translate-x-0 " +
+          (sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full")
+        }
+      >
+        <div className="mb-10 flex items-start justify-between gap-2 px-2">
+          <div>
+            <div className="font-headline text-xl font-bold tracking-tighter text-white">
+              Portal Becario
+            </div>
+            <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              Anáhuac · Servicio Becario
+            </div>
+          </div>
           <button
             type="button"
-            onClick={openRegistroManual}
-            className="mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary-container px-4 py-3 text-sm font-bold text-on-primary-container transition-all active:scale-95 active:opacity-80"
+            onClick={closeSidebar}
+            aria-label="Cerrar menú"
+            className="-mr-2 -mt-1 flex h-10 w-10 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-white/5 hover:text-white lg:hidden"
           >
-            <span className="material-symbols-outlined">add_circle</span>
-            Registrar Jornada
+            <span className="material-symbols-outlined">close</span>
           </button>
-        )}
+        </div>
 
-        <Link
-          href="/configuracion"
-          className="flex items-center gap-3 rounded-xl px-4 py-3 font-headline text-sm tracking-tight text-zinc-400 transition-colors hover:text-white"
-        >
-          <span className="material-symbols-outlined">settings</span>
-          Configuración
-        </Link>
-        <Link
-          href="/ayuda"
-          className="flex items-center gap-3 rounded-xl px-4 py-3 font-headline text-sm tracking-tight text-zinc-400 transition-colors hover:text-white"
-        >
-          <span className="material-symbols-outlined">help</span>
-          Ayuda
-        </Link>
+        <nav className="flex-1 space-y-1">
+          {items.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={closeSidebar}
+                aria-current={active ? "page" : undefined}
+                className={
+                  active
+                    ? "flex items-center gap-3 rounded-xl border-r-4 border-orange-500 bg-white/5 px-4 py-3 font-headline text-sm font-bold tracking-tight text-white transition-all"
+                    : "flex items-center gap-3 rounded-xl px-4 py-3 font-headline text-sm tracking-tight text-zinc-400 transition-all duration-200 hover:bg-zinc-800/50 hover:text-white"
+                }
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                >
+                  {item.icon}
+                </span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-        <LogoutButton className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-headline text-sm tracking-tight text-zinc-400 transition-colors hover:text-white">
-          <span className="material-symbols-outlined">logout</span>
-          Cerrar sesión
-        </LogoutButton>
-      </div>
-    </aside>
+        <div className="mt-auto space-y-1 pt-6">
+          {role === "ALUMNO" && (
+            <button
+              type="button"
+              onClick={handleRegistroManual}
+              className="mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary-container px-4 py-3 text-sm font-bold text-on-primary-container transition-all active:scale-95 active:opacity-80"
+            >
+              <span className="material-symbols-outlined">add_circle</span>
+              Registrar Jornada
+            </button>
+          )}
+
+          <Link href="/configuracion" onClick={closeSidebar} className={secondaryLinkClass}>
+            <span className="material-symbols-outlined">settings</span>
+            Configuración
+          </Link>
+          <Link href="/ayuda" onClick={closeSidebar} className={secondaryLinkClass}>
+            <span className="material-symbols-outlined">help</span>
+            Ayuda
+          </Link>
+
+          <LogoutButton className={"w-full " + secondaryLinkClass}>
+            <span className="material-symbols-outlined">logout</span>
+            Cerrar sesión
+          </LogoutButton>
+        </div>
+      </aside>
+    </>
   );
 }

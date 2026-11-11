@@ -22,7 +22,7 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
 export default function ProgressWidget({ stats }: { stats: AlumnoStatsData | null }) {
   if (!stats) {
     return (
-      <section className="col-span-12 rounded-xl bg-surface-container-lowest p-8 shadow-card">
+      <section className="col-span-12 rounded-xl bg-surface-container-lowest p-6 shadow-card sm:p-8">
         <h2 className="font-headline text-2xl font-black tracking-tight text-on-surface">
           Progreso de Servicio Becario
         </h2>
@@ -44,10 +44,10 @@ export default function ProgressWidget({ stats }: { stats: AlumnoStatsData | nul
   };
 
   return (
-    <section className="col-span-12 rounded-xl bg-surface-container-lowest p-8 shadow-card">
-      <div className="mb-6 flex items-end justify-between">
+    <section className="col-span-12 rounded-xl bg-surface-container-lowest p-6 shadow-card sm:p-8">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="mb-1 font-headline text-2xl font-black tracking-tight text-on-surface">
+          <h2 className="mb-1 font-headline text-xl font-black tracking-tight text-on-surface sm:text-2xl">
             Progreso de Servicio Becario
           </h2>
           <p className="font-medium text-secondary">
@@ -56,7 +56,7 @@ export default function ProgressWidget({ stats }: { stats: AlumnoStatsData | nul
             {stats.targetHours} requeridas
           </p>
         </div>
-        <div className="text-right">
+        <div className="sm:text-right">
           <span className="font-headline text-4xl font-black text-on-surface">
             {stats.progressPercent}%
           </span>

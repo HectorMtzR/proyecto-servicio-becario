@@ -8,9 +8,9 @@ export default async function HistorialPage() {
   const sessions = await getAllSessions();
 
   return (
-    <div className="px-8 pb-12 pt-8">
+    <div className="px-4 pb-12 pt-6 sm:px-8 sm:pt-8">
       <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <Link
               href="/alumno/jornadas"

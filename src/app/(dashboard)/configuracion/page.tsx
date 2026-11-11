@@ -1,6 +1,6 @@
 export default function ConfiguracionPage() {
   return (
-    <section className="p-8">
+    <section className="p-4 sm:p-8">
       <div className="mx-auto max-w-3xl space-y-8">
         <div>
           <h1 className="font-headline text-2xl font-bold text-on-surface">

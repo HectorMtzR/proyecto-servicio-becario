@@ -132,7 +132,7 @@ export default async function PerfilPage() {
   }
 
   return (
-    <div className="px-8 pb-12 pt-8">
+    <div className="px-4 pb-12 pt-6 sm:px-8 sm:pt-8">
       <div className="mx-auto max-w-4xl space-y-8">
 
         {/* Header label */}
@@ -146,7 +146,7 @@ export default async function PerfilPage() {
         </div>
 
         {/* Hero card */}
-        <div className="rounded-xl bg-surface-container-lowest p-8 shadow-[0_4px_32px_rgba(25,28,29,0.06)]">
+        <div className="rounded-xl bg-surface-container-lowest p-6 sm:p-8 shadow-[0_4px_32px_rgba(25,28,29,0.06)]">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
             <Initials name={user.name} />
             <div className="text-center sm:text-left">

@@ -160,7 +160,7 @@ export default function UserFormModal({ open, mode, user, careers, onClose }: Pr
       onClick={() => !isPending && onClose()}
     >
       <div
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-surface-container-lowest p-8 shadow-card-hover"
+        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-surface-container-lowest p-5 sm:p-8 shadow-card-hover"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-2 font-headline text-2xl font-black tracking-tight text-on-surface">

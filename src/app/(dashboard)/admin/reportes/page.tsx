@@ -46,7 +46,7 @@ export default async function AdminReportesPage(props: PageProps) {
   const { rows, summary, periodId } = await getReportData(filters);
 
   return (
-    <main className="space-y-6 p-8">
+    <main className="space-y-6 p-4 sm:p-8">
       <header>
         <p className="font-label text-[11px] font-bold uppercase tracking-widest text-secondary">
           Panel de administración
@@ -108,7 +108,7 @@ function SummaryCard({
 }) {
   return (
     <div className="rounded-xl bg-surface-container-lowest p-5 shadow-card">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="font-label text-[11px] font-bold uppercase tracking-widest text-secondary">
           {label}
         </p>
