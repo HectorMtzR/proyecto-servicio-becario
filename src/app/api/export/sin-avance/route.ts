@@ -34,7 +34,7 @@ export async function GET() {
     "Días del Período": s.daysElapsed,
   }));
 
-  const buffer = generateWorkbook([{ name: "Sin Avance", rows: excelRows }]);
+  const buffer = await generateWorkbook([{ name: "Sin Avance", rows: excelRows }]);
   const filename = `sin-avance-${todayStamp()}.xlsx`;
 
   return new NextResponse(buffer, {

@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
     "Estatus":        r.estatus,
   }));
 
-  const buffer = generateWorkbook([{ name: "Reporte", rows: excelRows }]);
+  const buffer = await generateWorkbook([{ name: "Reporte", rows: excelRows }]);
 
   const periodSlug = period ? slugify(period.name) : "sin-periodo";
   const filename   = `reporte-${periodSlug}-${todayStamp()}.xlsx`;

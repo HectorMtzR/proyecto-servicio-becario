@@ -3,7 +3,7 @@
 # ────────────────────────────────────────────────────────────────────────────
 # Stage 1: deps — instalar dependencias de producción y desarrollo
 # ────────────────────────────────────────────────────────────────────────────
-FROM node:20-slim AS deps
+FROM node:22-slim AS deps
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -17,7 +17,7 @@ RUN npm ci
 # ────────────────────────────────────────────────────────────────────────────
 # Stage 2: builder — generar Prisma Client y compilar Next.js
 # ────────────────────────────────────────────────────────────────────────────
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -38,7 +38,7 @@ RUN npm run build
 # ────────────────────────────────────────────────────────────────────────────
 # Stage 3: runner — imagen mínima para producción (standalone)
 # ────────────────────────────────────────────────────────────────────────────
-FROM node:20-slim AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
     "Comentario Rechazo": s.rejectionComment ?? "",
   }));
 
-  const buffer = generateWorkbook([{ name: "Historial", rows: excelRows }]);
+  const buffer = await generateWorkbook([{ name: "Historial", rows: excelRows }]);
   const slug = student.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const filename = `historial-${slug}-${todayStamp()}.xlsx`;
 

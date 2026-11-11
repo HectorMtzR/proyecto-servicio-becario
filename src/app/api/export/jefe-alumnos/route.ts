@@ -39,7 +39,7 @@ export async function GET() {
     "Jornadas Pendientes": s.pendingCount,
   }));
 
-  const buffer = generateWorkbook([{ name: "Mis Alumnos", rows: excelRows }]);
+  const buffer = await generateWorkbook([{ name: "Mis Alumnos", rows: excelRows }]);
 
   const supervisor = await db.user.findUnique({
     where: { id: session.user.id },

@@ -19,9 +19,10 @@ function formatDuration(minutes: number) {
 export default async function JefeAlumnoDetallePage({
   params,
 }: {
-  params: { studentId: string };
+  params: Promise<{ studentId: string }>;
 }) {
-  const detail = await getStudentDetail(params.studentId);
+  const { studentId } = await params;
+  const detail = await getStudentDetail(studentId);
   if (!detail) notFound();
 
   const { student, assignment, sessions } = detail;

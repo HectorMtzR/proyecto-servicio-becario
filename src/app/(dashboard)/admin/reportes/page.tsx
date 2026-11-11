@@ -5,7 +5,7 @@ import ReportesFilters from "@/components/admin/ReportesFilters";
 import ReportesTable from "@/components/admin/ReportesTable";
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     periodId?:        string;
     careerId?:        string;
     faculty?:         string;
@@ -14,7 +14,7 @@ interface PageProps {
     maxBeca?:         string;
     scholarshipType?: string;
     sinAvance?:       string;
-  };
+  }>;
 }
 
 function parseBeca(value: string | undefined): number | undefined {
@@ -24,7 +24,8 @@ function parseBeca(value: string | undefined): number | undefined {
   return Math.max(0, Math.min(100, Math.round(n)));
 }
 
-export default async function AdminReportesPage({ searchParams }: PageProps) {
+export default async function AdminReportesPage(props: PageProps) {
+  const searchParams = await props.searchParams;
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (session.user.role !== "ADMIN") redirect("/");
