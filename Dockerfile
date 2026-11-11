@@ -21,10 +21,13 @@ FROM node:20-slim AS builder
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssl ca-certificates \
+    openssl ca-certificates tzdata \
   && rm -rf /var/lib/apt/lists/*
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# Zona horaria de negocio: el servidor interpreta fechas/horas capturadas
+# por el usuario (registro manual, estadísticas del mes) en hora de CDMX.
+ENV TZ=America/Mexico_City
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -39,11 +42,13 @@ FROM node:20-slim AS runner
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssl ca-certificates \
+    openssl ca-certificates tzdata \
   && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Ver nota en el stage builder: fechas de negocio en hora de CDMX.
+ENV TZ=America/Mexico_City
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 

@@ -3,6 +3,53 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+// ─── Utilidades de fechas (zona horaria de Ciudad de México) ─────────────────
+// CDMX no tiene horario de verano desde 2022, así que el offset es fijo (-06:00).
+// Construimos todas las fechas con offset explícito para que el seed produzca
+// los mismos datos sin importar la zona horaria de la máquina que lo ejecute.
+const MX_OFFSET_HOURS = 6;
+const DAY_MS          = 24 * 60 * 60 * 1000;
+
+/** Fecha "YYYY-MM-DD" en hora de CDMX para un instante dado. */
+function mxYmd(instant: Date): string {
+  return new Date(instant.getTime() - MX_OFFSET_HOURS * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+}
+
+/** Instante correspondiente a una fecha y hora locales de CDMX. */
+function mxDate(ymd: string, hhmm: string): Date {
+  return new Date(`${ymd}T${hhmm}:00.000-06:00`);
+}
+
+/** Hora `hhmm` (CDMX) de hace `days` días. */
+function daysAgo(days: number, hhmm: string): Date {
+  return mxDate(mxYmd(new Date(Date.now() - days * DAY_MS)), hhmm);
+}
+
+/**
+ * Período vigente según la fecha actual:
+ *   - Enero a julio      → "Enero - Julio AAAA"
+ *   - Agosto a diciembre → "Agosto - Diciembre AAAA"
+ * El inicio se recorre hacia atrás si es necesario para que las jornadas de
+ * ejemplo (hasta 30 días atrás) siempre caigan dentro del período.
+ */
+function currentPeriod() {
+  const [year, month] = mxYmd(new Date()).split("-").map(Number);
+  const isFirstHalf   = month <= 7;
+
+  const name  = isFirstHalf ? `Enero - Julio ${year}` : `Agosto - Diciembre ${year}`;
+  const start = isFirstHalf ? mxDate(`${year}-01-05`, "00:00") : mxDate(`${year}-08-03`, "00:00");
+  const end   = isFirstHalf ? mxDate(`${year}-07-31`, "23:59") : mxDate(`${year}-12-31`, "23:59");
+
+  const earliestSample = daysAgo(30, "00:00");
+  return {
+    name,
+    startDate: start < earliestSample ? start : earliestSample,
+    endDate:   end,
+  };
+}
+
 async function main() {
   console.log("🌱 Seeding database (modo seguro — no borra datos existentes)...");
 
@@ -56,20 +103,21 @@ async function main() {
 
   console.log("✅ Carreras verificadas");
 
-  // ─── Período activo ────────────────────────────────────────────────────────
+  // ─── Período activo (calculado según la fecha actual) ──────────────────────
+  const periodData = currentPeriod();
   const period = await prisma.period.upsert({
-    where:  { name: "Agosto - Diciembre 2024" },
+    where:  { name: periodData.name },
     update: {},
     create: {
-      name:      "Agosto - Diciembre 2024",
-      startDate: new Date("2024-08-12T00:00:00.000-06:00"),
-      endDate:   new Date("2024-12-13T00:00:00.000-06:00"),
+      name:      periodData.name,
+      startDate: periodData.startDate,
+      endDate:   periodData.endDate,
       isActive:  true,
       isClosed:  false,
     },
   });
 
-  console.log("✅ Período verificado");
+  console.log(`✅ Período verificado: ${period.name}`);
 
   // ─── Hash de contraseñas ───────────────────────────────────────────────────
   const adminHash  = await bcrypt.hash("Admin123!", 12);
@@ -349,44 +397,44 @@ async function main() {
         {
           assignmentId: assign1.id,
           studentId:    alumno1.id,
-          startTime:    new Date("2024-08-20T09:00:00.000-06:00"),
-          endTime:      new Date("2024-08-20T11:00:00.000-06:00"),
+          startTime:    daysAgo(24, "09:00"),
+          endTime:      daysAgo(24, "11:00"),
           totalMinutes: 120,
           status:       Status.APROBADA,
           isManual:     false,
           description:  "Soporte técnico a equipos del laboratorio de cómputo. Instalación de software y actualización de sistemas.",
           validatedBy:  jefe1.id,
-          validatedAt:  new Date("2024-08-21T10:00:00.000-06:00"),
+          validatedAt:  daysAgo(23, "10:00"),
         },
         {
           assignmentId: assign1.id,
           studentId:    alumno1.id,
-          startTime:    new Date("2024-08-22T14:00:00.000-06:00"),
-          endTime:      new Date("2024-08-22T16:30:00.000-06:00"),
+          startTime:    daysAgo(20, "14:00"),
+          endTime:      daysAgo(20, "16:30"),
           totalMinutes: 150,
           status:       Status.APROBADA,
           isManual:     false,
           description:  "Mantenimiento preventivo de equipos en sala B. Limpieza de hardware y pruebas de rendimiento.",
           validatedBy:  jefe1.id,
-          validatedAt:  new Date("2024-08-23T09:00:00.000-06:00"),
+          validatedAt:  daysAgo(19, "09:00"),
         },
         {
           assignmentId: assign1.id,
           studentId:    alumno1.id,
-          startTime:    new Date("2024-08-26T10:00:00.000-06:00"),
-          endTime:      new Date("2024-08-26T12:00:00.000-06:00"),
+          startTime:    daysAgo(13, "10:00"),
+          endTime:      daysAgo(13, "12:00"),
           totalMinutes: 120,
           status:       Status.APROBADA,
           isManual:     true,
           description:  "Apoyo en configuración de red WiFi en aula 204. Diagnóstico y resolución de problemas de conectividad.",
           validatedBy:  jefe1.id,
-          validatedAt:  new Date("2024-08-27T08:00:00.000-06:00"),
+          validatedAt:  daysAgo(12, "08:00"),
         },
         {
           assignmentId: assign1.id,
           studentId:    alumno1.id,
-          startTime:    new Date("2024-09-02T09:00:00.000-06:00"),
-          endTime:      new Date("2024-09-02T11:00:00.000-06:00"),
+          startTime:    daysAgo(2, "09:00"),
+          endTime:      daysAgo(2, "11:00"),
           totalMinutes: 120,
           status:       Status.PENDIENTE,
           isManual:     false,
@@ -395,15 +443,15 @@ async function main() {
         {
           assignmentId:    assign1.id,
           studentId:       alumno1.id,
-          startTime:       new Date("2024-08-28T08:00:00.000-06:00"),
-          endTime:         new Date("2024-08-28T08:20:00.000-06:00"),
-          totalMinutes:    20,
+          startTime:       daysAgo(9, "08:00"),
+          endTime:         daysAgo(9, "08:30"),
+          totalMinutes:    30,
           status:          Status.RECHAZADA,
           isManual:        false,
           description:     "Apoyo en laboratorio.",
           rejectionComment: "La descripción de actividades es insuficiente. Por favor detalla las tareas realizadas con más especificidad.",
           validatedBy:     jefe1.id,
-          validatedAt:     new Date("2024-08-29T09:00:00.000-06:00"),
+          validatedAt:     daysAgo(8, "09:00"),
         },
       ],
     });
@@ -419,26 +467,26 @@ async function main() {
         {
           assignmentId: assign2.id,
           studentId:    alumno2.id,
-          startTime:    new Date("2024-08-19T08:00:00.000-06:00"),
-          endTime:      new Date("2024-08-19T09:30:00.000-06:00"),
+          startTime:    daysAgo(22, "08:00"),
+          endTime:      daysAgo(22, "09:30"),
           totalMinutes: 90,
           status:       Status.APROBADA,
           isManual:     false,
           description:  "Instalación de actualizaciones de seguridad en servidores del laboratorio. Verificación de funcionamiento post-actualización.",
           validatedBy:  jefe1.id,
-          validatedAt:  new Date("2024-08-20T08:00:00.000-06:00"),
+          validatedAt:  daysAgo(21, "08:00"),
         },
         {
           assignmentId: assign2.id,
           studentId:    alumno2.id,
-          startTime:    new Date("2024-08-23T13:00:00.000-06:00"),
-          endTime:      new Date("2024-08-23T15:00:00.000-06:00"),
+          startTime:    daysAgo(6, "13:00"),
+          endTime:      daysAgo(6, "15:00"),
           totalMinutes: 120,
           status:       Status.APROBADA,
           isManual:     false,
           description:  "Apoyo técnico a alumnos de primer semestre en manejo de herramientas de desarrollo. Instalación de IDEs.",
           validatedBy:  jefe1.id,
-          validatedAt:  new Date("2024-08-24T09:00:00.000-06:00"),
+          validatedAt:  daysAgo(5, "09:00"),
         },
       ],
     });
@@ -453,14 +501,14 @@ async function main() {
       data: {
         assignmentId: assign3.id,
         studentId:    alumno3.id,
-        startTime:    new Date("2024-08-21T10:00:00.000-06:00"),
-        endTime:      new Date("2024-08-21T11:30:00.000-06:00"),
+        startTime:    daysAgo(15, "10:00"),
+        endTime:      daysAgo(15, "11:30"),
         totalMinutes: 90,
         status:       Status.APROBADA,
         isManual:     false,
         description:  "Apoyo en organización de documentación académica del semestre anterior. Digitalización de expedientes físicos.",
         validatedBy:  jefe1.id,
-        validatedAt:  new Date("2024-08-22T08:00:00.000-06:00"),
+        validatedAt:  daysAgo(14, "08:00"),
       },
     });
     await prisma.assignment.update({
@@ -475,32 +523,32 @@ async function main() {
         {
           assignmentId: assign4.id,
           studentId:    alumno4.id,
-          startTime:    new Date("2024-08-20T08:00:00.000-06:00"),
-          endTime:      new Date("2024-08-20T10:30:00.000-06:00"),
+          startTime:    daysAgo(21, "08:00"),
+          endTime:      daysAgo(21, "10:30"),
           totalMinutes: 150,
           status:       Status.APROBADA,
           isManual:     false,
           description:  "Apoyo en coordinación de eventos académicos del semestre. Elaboración de material de difusión y organización de agenda.",
           validatedBy:  jefe2.id,
-          validatedAt:  new Date("2024-08-21T09:00:00.000-06:00"),
+          validatedAt:  daysAgo(20, "09:00"),
         },
         {
           assignmentId: assign4.id,
           studentId:    alumno4.id,
-          startTime:    new Date("2024-08-27T09:00:00.000-06:00"),
-          endTime:      new Date("2024-08-27T10:00:00.000-06:00"),
+          startTime:    daysAgo(12, "09:00"),
+          endTime:      daysAgo(12, "10:00"),
           totalMinutes: 60,
           status:       Status.APROBADA,
           isManual:     true,
           description:  "Registro manual: apoyo en recepción de alumnos de nuevo ingreso en coordinación académica.",
           validatedBy:  jefe2.id,
-          validatedAt:  new Date("2024-08-28T08:00:00.000-06:00"),
+          validatedAt:  daysAgo(11, "08:00"),
         },
         {
           assignmentId: assign4.id,
           studentId:    alumno4.id,
-          startTime:    new Date("2024-09-02T10:00:00.000-06:00"),
-          endTime:      new Date("2024-09-02T12:00:00.000-06:00"),
+          startTime:    daysAgo(1, "10:00"),
+          endTime:      daysAgo(1, "12:00"),
           totalMinutes: 120,
           status:       Status.PENDIENTE,
           isManual:     false,
@@ -520,20 +568,20 @@ async function main() {
         {
           assignmentId: assign5.id,
           studentId:    alumno5.id,
-          startTime:    new Date("2024-08-22T09:00:00.000-06:00"),
-          endTime:      new Date("2024-08-22T10:00:00.000-06:00"),
+          startTime:    daysAgo(10, "09:00"),
+          endTime:      daysAgo(10, "10:00"),
           totalMinutes: 60,
           status:       Status.APROBADA,
           isManual:     false,
           description:  "Apoyo en búsqueda y organización de jurisprudencia para casos activos del bufete. Catalogación en sistema digital.",
           validatedBy:  jefe2.id,
-          validatedAt:  new Date("2024-08-23T09:00:00.000-06:00"),
+          validatedAt:  daysAgo(9, "09:00"),
         },
         {
           assignmentId: assign5.id,
           studentId:    alumno5.id,
-          startTime:    new Date("2024-08-26T14:00:00.000-06:00"),
-          endTime:      new Date("2024-08-26T15:00:00.000-06:00"),
+          startTime:    daysAgo(4, "14:00"),
+          endTime:      daysAgo(4, "15:00"),
           totalMinutes: 60,
           status:       Status.CANCELADA,
           isManual:     false,

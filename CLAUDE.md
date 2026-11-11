@@ -461,7 +461,7 @@ IMPORTANT: No incluir salvo que se pida:
 ## Seed data
 
 `prisma/seed.ts` con:
-- 1 período activo: "Agosto - Diciembre 2024"
+- 1 período activo calculado según la fecha actual ("Enero - Julio AAAA" o "Agosto - Diciembre AAAA"); jornadas de ejemplo con fechas relativas (últimos 30 días)
 - 1 Admin: admin@anahuac.mx / Admin123! (mustChangePassword: false)
 - 2 Jefes: jefe1@anahuac.mx, jefe2@anahuac.mx / Jefe123!
 - 5 Alumnos con distintos % de beca:
